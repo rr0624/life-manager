@@ -1,5 +1,5 @@
 // Service Worker — 离线缓存
-const CACHE_NAME = 'life-manager-v5';
+const CACHE_NAME = 'life-manager-v6';
 const ASSETS = [
   './',
   './index.html',

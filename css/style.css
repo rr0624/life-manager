@@ -1553,7 +1553,7 @@ body::before {
   flex-shrink: 0;
   padding: 8px var(--content-padding);
   padding-bottom: calc(var(--nav-height) + 4px + env(safe-area-inset-bottom));
-  background: linear-gradient(to bottom, transparent 0%, var(--bg-primary) 8px);
+  background: var(--bg-primary);
 }
 #page-records .chat-input-row {
   display: flex;
