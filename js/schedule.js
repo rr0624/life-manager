@@ -165,7 +165,6 @@ const SchedulePage = {
                         <div style="font-size:var(--fs-small);font-weight:var(--fw-medium);${s.completed ? 'text-decoration:line-through;opacity:0.5;' : ''}">${Utils.escapeHtml(s.title)}</div>
                       </div>
                       <span style="font-size:var(--fs-caption);color:var(--text-tertiary);margin-right:4px;">${s.time ? (s.timeEnd ? s.time + '-' + s.timeEnd : s.time) : ''}</span>
-                      <button class="btn-icon btn-copy-schedule" data-copy="${s.id}" aria-label="复制日程" title="复制" style="font-size:12px;">📋</button>
                       <button class="btn-icon btn-delete-schedule" data-delete="${s.id}" aria-label="删除日程" title="删除" style="font-size:13px;">🗑️</button>
                     </div>
                   `).join('')
@@ -371,7 +370,6 @@ const SchedulePage = {
         <div class="schedule-meta">
           <span>${schedule.time ? (schedule.timeEnd ? schedule.time + ' - ' + schedule.timeEnd : schedule.time) : ''}</span>
         </div>
-        <button class="btn-icon btn-copy-schedule" data-copy="${schedule.id}" aria-label="复制日程" title="复制到其他日期">📋</button>
         <button class="btn-icon btn-delete-schedule" data-delete="${schedule.id}" aria-label="删除日程" title="删除">🗑️</button>
       </div>`;
   },
@@ -386,14 +384,6 @@ const SchedulePage = {
         await this._toggleComplete(id);
       });
     });
-    // 复制按钮
-    container.querySelectorAll('.btn-copy-schedule').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const id = parseInt(btn.dataset.copy);
-        this._copyScheduleToDate(id);
-      });
-    });
     // 删除按钮
     container.querySelectorAll('.btn-delete-schedule').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -404,44 +394,6 @@ const SchedulePage = {
         await this.refresh();
         if (typeof App !== 'undefined') App._showToast('日程已删除 🗑️');
       });
-    });
-  },
-
-  // 单条日程复制到指定日期
-  async _copyScheduleToDate(id) {
-    const schedule = await DB.getById('schedules', id);
-    if (!schedule) return;
-
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="modal" style="max-width:320px;">
-        <div class="modal-header">
-          <div class="modal-title">📋 复制日程</div>
-          <button class="modal-close">✕</button>
-        </div>
-        <div class="modal-body">
-          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">「${Utils.escapeHtml(schedule.title)}」</p>
-          <input id="copy-target-date" class="input" type="date" value="${Utils.formatDate()}">
-          <button class="btn btn-primary btn-block" id="btn-confirm-copy" style="margin-top:12px;">📋 复制到此日期</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(overlay);
-    const close = () => overlay.remove();
-    overlay.querySelector('.modal-close').addEventListener('click', close);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-
-    overlay.querySelector('#btn-confirm-copy').addEventListener('click', async () => {
-      const targetDate = overlay.querySelector('#copy-target-date').value;
-      if (!targetDate) { App._showToast('请选择日期'); return; }
-      await DB.add('schedules', {
-        ...schedule, id: undefined, date: targetDate, completed: false,
-        createdAt: new Date().toISOString()
-      });
-      close();
-      App._showToast('已复制 ✓');
-      this.refresh();
     });
   },
 
