@@ -566,12 +566,12 @@ const RecordsPage = {
 
     // AI 生成匹配的书籍名句
     const status = document.getElementById('ai-status');
-    if (status) status.textContent = '📜 正在为你寻找文学名句...';
+    if (status) status.textContent = '📜 正在为你寻找名句...';
 
     try {
       const result = await AI._callAPI([
-        { role: 'user', content: `根据以下对话内容，推荐一句与之共鸣的文学名句（可以来自任何书籍、诗歌、电影台词、哲学著作等），格式为：书名《xxx》+ 作者/出处 + 名句。只返回这个格式，不要额外解释。\n\n对话：\n${text}` }
-      ], '你是文学鉴赏助手，根据用户对话推荐匹配的经典名句，来源不限，中外皆可。');
+        { role: 'user', content: `根据以下对话内容，推荐一句与之共鸣的名句。来源完全不限：书籍、诗歌、电影、电视剧、动漫、歌词、名人名言、哲学著作、网络金句、甚至你自己想说的话都可以。只要能和对话产生共鸣，一句有力量的话就行。格式为：出处《xxx》+ 作者 + 名句。如果没有明确出处，写「佚名」即可。只返回这个格式，不要额外解释。\n\n对话：\n${text}` }
+      ], '你是文学鉴赏助手，根据用户对话推荐匹配的名句。来源完全自由，不限媒介、不限时代、不限文体。');
 
       if (status) status.textContent = '';
       this._showLitCard(result || this._getLocalQuote());
