@@ -427,32 +427,20 @@ const SchedulePage = {
           <button class="modal-close">✕</button>
         </div>
         <div class="modal-body">
-          <!-- 同步类型选择（chip 切换） -->
-          <div class="form-group">
-            <label class="form-label">同步类型</label>
-            <div class="sync-type-chips" id="sync-type-chips">
-              <button class="sync-chip active-weekly" data-type="weekly">📆 周同步</button>
-              <button class="sync-chip" data-type="monthly">📅 月同步</button>
-            </div>
+          <!-- 同步类型选择 -->
+          <div class="sync-type-chips" id="sync-type-chips" style="margin-bottom:10px;">
+            <button class="sync-chip active-weekly" data-type="weekly">📆 周同步</button>
+            <button class="sync-chip" data-type="monthly">📅 月同步</button>
           </div>
 
           <!-- 同步预览 -->
-          <div class="sync-preview" id="sync-preview">
-            <span class="sync-preview-icon">📋</span>
+          <div class="sync-preview" id="sync-preview" style="font-size:12px;padding:8px 12px;">
             <span id="sync-preview-text">本周 ${thisWeek.start} → ${thisWeek.end}<br>复制到 下周 ${nextWeek.start} → ${nextWeek.end}</span>
           </div>
 
-          <!-- 进度条 -->
-          <div class="progress-bar" id="sync-progress" style="display:none;margin-top:12px;">
-            <div class="progress-fill animating" style="width:0%;"></div>
-          </div>
-
-          <button class="btn btn-primary btn-block" id="btn-sync-execute" style="margin-top:16px;">
+          <button class="btn btn-primary btn-block" id="btn-sync-execute" style="margin-top:12px;">
             🚀 开始同步
           </button>
-          <div class="settings-hint" style="text-align:center;margin-top:8px;">
-            源区间的日程将复制到目标区间（跳过重复）
-          </div>
         </div>
       </div>`;
 
