@@ -415,11 +415,12 @@ const SchedulePage = {
     }
     return opts;
   },
-  // 生成分钟选项 (00/15/30/45)
+  // 生成分钟选项 (5分钟间隔)
   _minOptions(timeStr) {
     const m = timeStr ? timeStr.split(':')[1] : '';
     let opts = '<option value="">分</option>';
-    for (const v of ['00', '15', '30', '45']) {
+    for (let i = 0; i < 60; i += 5) {
+      const v = String(i).padStart(2, '0');
       opts += `<option value="${v}" ${v === m ? 'selected' : ''}>${v}</option>`;
     }
     return opts;
