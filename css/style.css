@@ -50,7 +50,7 @@
   --radius-full: 9999px;
 
   /* == 排版 == */
-  --font: 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;给我增加一个可以ge
+  --font: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
   --fs-title: 28px;
   --fs-heading: 20px;
@@ -1786,4 +1786,52 @@ body::before {
     border-left: var(--glass-border-subtle);
     border-right: var(--glass-border-subtle);
   }
+}
+
+/* ================================================================
+   MOBILE — 移动端精准适配
+   ================================================================ */
+@media (max-width: 480px) {
+  :root {
+    --fs-title: 24px;
+    --fs-heading: 18px;
+    --fs-body: 15px;
+    --fs-small: 13px;
+    --fs-caption: 11px;
+    --content-padding: 14px;
+    --nav-height: 72px;
+  }
+
+  .app-header { padding: 16px var(--content-padding) 12px; }
+  .app-header h1 { font-size: 18px; }
+  .app-header .subtitle { font-size: 10px; letter-spacing: 1.5px; }
+
+  .page-container { padding-bottom: calc(var(--nav-height) + 8px); }
+
+  .glass-card { padding: 14px; margin-bottom: 10px; }
+  .glass-card-lg { padding: 16px; }
+
+  .schedule-item { padding: 10px 12px; gap: 8px; }
+  .schedule-check { width: 23px; height: 23px; }
+
+  .view-toggle button { padding: 6px 4px; font-size: 11px; }
+
+  .calendar-day { width: 40px; height: 40px; font-size: 13px; }
+
+  .modal { padding: 20px var(--content-padding) calc(20px + env(safe-area-inset-bottom)); }
+
+  .nav-item { font-size: 10px; padding: 6px 0; }
+  .nav-item .nav-icon { font-size: 20px; }
+
+  .fab { width: 50px; height: 50px; right: 12px; bottom: calc(var(--nav-height) + 12px); }
+  .fab .fab-icon { font-size: 24px; }
+
+  .timeline-header { padding: 12px 14px !important; margin: -14px -14px 12px -14px !important; }
+
+  .input, .textarea, .btn { font-size: var(--fs-small); }
+  .input { padding: 10px 12px; }
+  .btn { padding: 10px 16px; }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+
+  .toast { padding: 10px 20px; font-size: 13px; bottom: calc(var(--nav-height) + 16px); }
 }
