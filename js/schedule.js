@@ -409,7 +409,7 @@ const SchedulePage = {
     const h = timeStr ? timeStr.split(':')[0] : '';
     const m = timeStr ? timeStr.split(':')[1] : '';
     let hBtns = '';
-    for (let i = 6; i <= 23; i++) {
+    for (let i = 0; i <= 23; i++) {
       const v = String(i).padStart(2, '0');
       hBtns += `<button class="time-chip${v === h ? ' active' : ''}" data-pick="${prefix}h" data-val="${v}">${v}</button>`;
     }
