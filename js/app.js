@@ -81,6 +81,7 @@ const App = {
         <h1>生活管理</h1>
         <div class="subtitle">日 程 · 目 标 · 记 录</div>
         <div class="header-actions">
+          <button class="header-btn" id="btn-install-app" aria-label="安装应用" title="安装到桌面">📲</button>
           <button class="header-btn" id="btn-theme-toggle" aria-label="主题切换" title="主题切换">🌓</button>
           <button class="header-btn" id="btn-settings" aria-label="设置" title="设置">⚙</button>
         </div>
@@ -104,6 +105,11 @@ const App = {
       <!-- Toast 容器 -->
       <div class="toast" id="toast"></div>
     `;
+
+    // 安装按钮 → 显示安装引导
+    document.getElementById('btn-install-app').addEventListener('click', () => {
+      this._showInstallGuide();
+    });
 
     // 设置按钮 → 打开抽屉
     document.getElementById('btn-settings').addEventListener('click', () => {
@@ -292,6 +298,36 @@ const App = {
       }
       fileInput.value = '';
     });
+  },
+
+  // ===== 安装引导弹窗 =====
+  _showInstallGuide() {
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">📲 安装到桌面</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+          ${isIOS ? `
+            <div style="font-size:48px;margin:12px 0;">📱</div>
+            <p style="margin-bottom:12px;line-height:1.8;">点击底部 <b style="background:#007aff;color:#fff;padding:2px 8px;border-radius:4px;">分享</b> 按钮</p>
+            <p style="margin-bottom:12px;line-height:1.8;">下滑找到 <b>「添加到主屏幕」</b></p>
+            <p style="color:var(--text-tertiary);font-size:13px;">安装后键盘不挤压页面，体验和原生 App 一样</p>
+          ` : `
+            <div style="font-size:48px;margin:12px 0;">📱</div>
+            <p style="margin-bottom:12px;line-height:1.8;">点击右上角 <b>⋮</b> 菜单</p>
+            <p style="margin-bottom:12px;line-height:1.8;">选择 <b>「添加到桌面」</b> 或 <b>「安装应用」</b></p>
+            <p style="color:var(--text-tertiary);font-size:13px;">安装后键盘不挤压页面，体验和原生 App 一样</p>
+          `}
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
   },
 
   // ===== PWA 安装提示 =====
