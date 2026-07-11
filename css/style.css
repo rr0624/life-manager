@@ -1483,7 +1483,10 @@ body::before {
   flex-direction: column;
   gap: 2px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+#page-records .chat-messages::-webkit-scrollbar { display: none; }
 
 /* 欢迎页 */
 #page-records .chat-welcome {
