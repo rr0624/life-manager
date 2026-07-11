@@ -406,8 +406,7 @@ const SchedulePage = {
   },
 
   // ================================================================
-  // ================================================================
-  //  同步弹窗（可选日程 + 支持单条复制）
+  //  同步弹窗 — 自选日期范围 + 周/月快捷键
   // ================================================================
   _showSyncModal() {
     const thisWeek = Utils.getWeekRange();
@@ -424,31 +423,37 @@ const SchedulePage = {
           <button class="modal-close">✕</button>
         </div>
         <div class="modal-body" style="padding-bottom:16px;">
-          <div class="sync-type-chips" id="sync-type-chips" style="margin-bottom:10px;">
-            <button class="sync-chip active-weekly" data-type="weekly">📆 周同步</button>
-            <button class="sync-chip" data-type="monthly">📅 月同步</button>
+          <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:10px;">
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--text-tertiary);">复制源 从</label>
+              <input id="sync-from" class="input" type="date" value="${thisWeek.start}" style="padding:8px 10px;font-size:13px;">
+            </div>
+            <span style="padding-bottom:8px;color:var(--text-tertiary);">→</span>
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--text-tertiary);">到</label>
+              <input id="sync-to" class="input" type="date" value="${thisWeek.end}" style="padding:8px 10px;font-size:13px;">
+            </div>
           </div>
-          <div class="sync-preview" id="sync-preview" style="font-size:12px;padding:8px 12px;margin-bottom:12px;">
-            <span id="sync-preview-text">本周 ${thisWeek.start} → ${thisWeek.end}<br>复制到 下周 ${nextWeek.start} → ${nextWeek.end}</span>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:11px;color:var(--text-tertiary);">复制到（起始日）</label>
+            <input id="sync-target" class="input" type="date" value="${nextWeek.start}" style="padding:8px 10px;font-size:13px;">
           </div>
-
-          <!-- 日程选择列表 -->
-          <div id="sync-select-all-row" style="display:flex;gap:8px;margin-bottom:8px;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn btn-sm btn-ghost sync-shortcut" data-from="${thisWeek.start}" data-to="${thisWeek.end}" data-target="${nextWeek.start}">📆 本周→下周</button>
+            <button class="btn btn-sm btn-ghost sync-shortcut" data-from="${thisMonth.start}" data-to="${thisMonth.end}" data-target="${nextMonth.start}">📅 本月→下月</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center;">
             <button class="btn btn-sm btn-ghost" id="btn-select-all">☑ 全选</button>
             <button class="btn btn-sm btn-ghost" id="btn-select-none">☐ 取消</button>
-            <span style="flex:1;text-align:right;font-size:12px;color:var(--text-tertiary);line-height:2;" id="sync-count"></span>
+            <span style="flex:1;text-align:right;font-size:12px;color:var(--text-tertiary);" id="sync-count"></span>
           </div>
-          <div id="sync-schedule-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px;"></div>
-
-          <button class="btn btn-primary btn-block" id="btn-sync-execute">
-            🚀 同步选中日程
-          </button>
+          <div id="sync-schedule-list" style="max-height:180px;overflow-y:auto;margin-bottom:12px;"></div>
+          <button class="btn btn-primary btn-block" id="btn-sync-execute">🚀 同步选中日程</button>
         </div>
       </div>`;
 
     document.body.appendChild(overlay);
 
-    let syncType = 'weekly';
     let sourceSchedules = [];
     const checkedState = {};
 
@@ -456,37 +461,33 @@ const SchedulePage = {
     overlay.querySelector('.modal-close').addEventListener('click', closeModal);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 
-    // 加载源区间日程
-    const loadSourceSchedules = async () => {
-      let sourceStart, sourceEnd;
-      if (syncType === 'weekly') {
-        sourceStart = thisWeek.start; sourceEnd = thisWeek.end;
-      } else {
-        sourceStart = thisMonth.start; sourceEnd = thisMonth.end;
-      }
-      sourceSchedules = await DB.getSchedulesByDateRange(sourceStart, sourceEnd);
+    const fromEl = overlay.querySelector('#sync-from');
+    const toEl = overlay.querySelector('#sync-to');
+    const targetEl = overlay.querySelector('#sync-target');
+
+    const loadList = async () => {
+      const from = fromEl.value, to = toEl.value;
+      sourceSchedules = await DB.getSchedulesByDateRange(from, to);
       sourceSchedules.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+      sourceSchedules.forEach(s => { if (!(s.id in checkedState)) checkedState[s.id] = true; });
 
       const listEl = overlay.querySelector('#sync-schedule-list');
       const countEl = overlay.querySelector('#sync-count');
 
+      const updateCount = () => {
+        const checked = sourceSchedules.filter(s => checkedState[s.id]).length;
+        countEl.textContent = sourceSchedules.length ? `已选 ${checked}/${sourceSchedules.length}` : '';
+      };
+
       if (sourceSchedules.length === 0) {
-        listEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-tertiary);font-size:13px;">源区间暂无日程</div>';
+        listEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-tertiary);font-size:13px;">该区间暂无日程</div>';
         countEl.textContent = '';
         return;
       }
 
-      // 默认全选
-      sourceSchedules.forEach(s => { if (!(s.id in checkedState)) checkedState[s.id] = true; });
-
-      const updateCount = () => {
-        const checked = sourceSchedules.filter(s => checkedState[s.id]).length;
-        countEl.textContent = `已选 ${checked}/${sourceSchedules.length}`;
-      };
       updateCount();
-
       listEl.innerHTML = sourceSchedules.map(s => `
-        <label class="sync-item" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;">
+        <label class="sync-item" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;cursor:pointer;">
           <input type="checkbox" data-sid="${s.id}" ${checkedState[s.id] ? 'checked' : ''} style="flex-shrink:0;">
           <span style="flex:1;min-width:0;font-size:13px;">
             <span style="color:var(--text-primary);">${Utils.escapeHtml(s.title)}</span>
@@ -495,7 +496,6 @@ const SchedulePage = {
         </label>
       `).join('');
 
-      // 勾选事件
       listEl.querySelectorAll('input[type=checkbox]').forEach(cb => {
         cb.addEventListener('change', () => {
           checkedState[parseInt(cb.dataset.sid)] = cb.checked;
@@ -504,80 +504,48 @@ const SchedulePage = {
       });
     };
 
-    loadSourceSchedules();
+    loadList();
 
-    // 全选/取消
+    overlay.querySelectorAll('.sync-shortcut').forEach(btn => {
+      btn.addEventListener('click', () => {
+        fromEl.value = btn.dataset.from;
+        toEl.value = btn.dataset.to;
+        targetEl.value = btn.dataset.target;
+        for (const k in checkedState) delete checkedState[k];
+        loadList();
+      });
+    });
+
+    fromEl.addEventListener('change', () => { for (const k in checkedState) delete checkedState[k]; loadList(); });
+    toEl.addEventListener('change', () => { for (const k in checkedState) delete checkedState[k]; loadList(); });
+
     overlay.querySelector('#btn-select-all').addEventListener('click', () => {
       sourceSchedules.forEach(s => checkedState[s.id] = true);
-      loadSourceSchedules();
+      loadList();
     });
     overlay.querySelector('#btn-select-none').addEventListener('click', () => {
       sourceSchedules.forEach(s => checkedState[s.id] = false);
-      loadSourceSchedules();
+      loadList();
     });
 
-    // 切换同步类型
-    const typeChips = overlay.querySelector('#sync-type-chips');
-    const previewText = overlay.querySelector('#sync-preview-text');
-    typeChips.addEventListener('click', (e) => {
-      const chip = e.target.closest('.sync-chip');
-      if (!chip) return;
-      syncType = chip.dataset.type;
-      typeChips.querySelectorAll('.sync-chip').forEach(c => {
-        c.classList.remove('active-weekly', 'active-monthly');
-      });
-      chip.classList.add(syncType === 'weekly' ? 'active-weekly' : 'active-monthly');
-      if (syncType === 'weekly') {
-        previewText.innerHTML = `本周 ${thisWeek.start} → ${thisWeek.end}<br>复制到 下周 ${nextWeek.start} → ${nextWeek.end}`;
-      } else {
-        previewText.innerHTML = `本月 ${thisMonth.start} → ${thisMonth.end}<br>复制到 下月 ${nextMonth.start} → ${nextMonth.end}`;
-      }
-      // 清空选中状态，重新加载
-      for (const k in checkedState) delete checkedState[k];
-      loadSourceSchedules();
-    });
-
-    // 执行同步
     overlay.querySelector('#btn-sync-execute').addEventListener('click', async () => {
       const selected = sourceSchedules.filter(s => checkedState[s.id]);
-      if (selected.length === 0) {
-        App._showToast('请至少选择一条日程');
-        return;
-      }
+      if (selected.length === 0) { App._showToast('请至少选择一条日程'); return; }
 
-      let sourceStart, sourceEnd, targetStart, targetEnd;
-      if (syncType === 'weekly') {
-        sourceStart = thisWeek.start; sourceEnd = thisWeek.end;
-        targetStart = nextWeek.start; targetEnd = nextWeek.end;
-      } else {
-        sourceStart = thisMonth.start; sourceEnd = thisMonth.end;
-        targetStart = nextMonth.start; targetEnd = nextMonth.end;
-      }
+      const from = new Date(fromEl.value + 'T00:00:00');
+      const target = new Date(targetEl.value + 'T00:00:00');
+      const offsetDays = Math.round((target.getTime() - from.getTime()) / 86400000);
 
-      const targetExisting = await DB.getSchedulesByDateRange(targetStart, targetEnd);
-      const offsetDays = syncType === 'weekly' ? 7 : Utils.daysInMonth(
-        parseInt(sourceStart.split('-')[0]), parseInt(sourceStart.split('-')[1])
-      );
+      const existingEnd = new Date(target);
+      existingEnd.setDate(existingEnd.getDate() + Math.round((new Date(toEl.value + 'T00:00:00').getTime() - from.getTime()) / 86400000));
+      const existing = await DB.getSchedulesByDateRange(targetEl.value, Utils.formatDate(existingEnd));
 
       let copied = 0;
       for (const s of selected) {
-        const origDate = new Date(s.date + 'T00:00:00');
-        origDate.setDate(origDate.getDate() + offsetDays);
-        let newDate = Utils.formatDate(origDate);
-
-        // 边界调整
-        if (newDate < targetStart || newDate > targetEnd) {
-          const sDay = new Date(s.date + 'T00:00:00').getDate();
-          const tYear = targetStart.split('-')[0];
-          const tMonth = targetStart.split('-')[1];
-          const tDays = Utils.daysInMonth(parseInt(tYear), parseInt(tMonth));
-          newDate = `${tYear}-${tMonth}-${String(Math.min(sDay, tDays)).padStart(2, '0')}`;
-          if (newDate < targetStart || newDate > targetEnd) continue;
-        }
-
-        const dup = targetExisting.find(e => e.title === s.title && e.date === newDate);
-        if (dup) continue;
-
+        const sDate = new Date(s.date + 'T00:00:00');
+        sDate.setDate(sDate.getDate() + offsetDays);
+        const newDate = Utils.formatDate(sDate);
+        if (existing.find(e => e.title === s.title && e.date === newDate)) continue;
         await DB.add('schedules', {
           ...s, id: undefined, date: newDate, completed: false,
           syncedWeekDays: [], createdAt: new Date().toISOString()

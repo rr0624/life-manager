@@ -213,15 +213,12 @@ body::before {
   opacity: 0.5;
 }
 
-/* 自定义滚动条 */
-::-webkit-scrollbar { width: 4px; height: 4px; }
+/* 自定义滚动条 — 全局隐藏 */
+::-webkit-scrollbar { width: 0; height: 0; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: var(--text-tertiary);
-  border-radius: var(--radius-full);
-  opacity: 0.5;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+::-webkit-scrollbar-thumb { background: transparent; }
+
+/* 全局隐藏滚动条但保留滚动功能 */
 
 /* ================================================================
    APP SHELL
