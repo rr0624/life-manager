@@ -50,7 +50,7 @@
   --radius-full: 9999px;
 
   /* == 排版 == */
-  --font: 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font: 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;给我增加一个可以ge
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
   --fs-title: 28px;
   --fs-heading: 20px;
@@ -659,15 +659,16 @@ body::before {
 }
 .view-toggle button {
   flex: 1;
-  padding: 8px 16px;
+  padding: 7px 6px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
-  font-size: var(--fs-small);
+  font-size: 12px;
   font-weight: var(--fw-medium);
   cursor: pointer;
   color: var(--text-secondary);
   font-family: var(--font);
+  white-space: nowrap;
   transition: all var(--duration-normal) var(--ease-out);
 }
 .view-toggle button.active {

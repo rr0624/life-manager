@@ -614,12 +614,12 @@ const SchedulePage = {
           <div style="display:flex;gap:8px;align-items:flex-end;">
             <div class="form-group" style="flex:1;">
               <label class="form-label">开始时间</label>
-              <input id="sched-time" class="input" type="time" value="${preset.time || ''}">
+              <input id="sched-time" class="input" type="text" placeholder="例如 14:30" pattern="[0-9]{2}:[0-9]{2}" inputmode="numeric" autocomplete="off" value="${preset.time || ''}">
             </div>
             <span style="padding-bottom:14px;color:var(--text-tertiary);">—</span>
             <div class="form-group" style="flex:1;">
               <label class="form-label">结束时间</label>
-              <input id="sched-time-end" class="input" type="time" value="${preset.timeEnd || ''}">
+              <input id="sched-time-end" class="input" type="text" placeholder="例如 15:30" pattern="[0-9]{2}:[0-9]{2}" inputmode="numeric" autocomplete="off" value="${preset.timeEnd || ''}">
             </div>
           </div>
           <button class="btn btn-primary btn-block" id="btn-save-schedule">
