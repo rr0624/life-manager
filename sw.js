@@ -1,17 +1,17 @@
 // Service Worker — 离线缓存
-const CACHE_NAME = 'life-manager-v8';
+const CACHE_NAME = 'life-manager-v9';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=7',
-  './js/app.js?v=7',
-  './js/db.js?v=7',
-  './js/ai.js?v=7',
-  './js/nav.js?v=7',
-  './js/schedule.js?v=7',
-  './js/goals.js?v=7',
-  './js/records.js?v=7',
-  './js/utils.js?v=7',
+  './css/style.css?v=8',
+  './js/app.js?v=8',
+  './js/db.js?v=8',
+  './js/ai.js?v=8',
+  './js/nav.js?v=8',
+  './js/schedule.js?v=8',
+  './js/goals.js?v=8',
+  './js/records.js?v=8',
+  './js/utils.js?v=8',
   './manifest.json'
 ];
 
