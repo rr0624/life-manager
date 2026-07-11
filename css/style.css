@@ -1174,7 +1174,8 @@ body::before {
   color: var(--text-tertiary);
   white-space: nowrap;
 }
-.btn-delete-schedule {
+.btn-delete-schedule,
+.btn-copy-schedule {
   opacity: 0.35;
   transition: opacity 0.2s, color 0.2s;
   flex-shrink: 0;
@@ -1184,6 +1185,16 @@ body::before {
 .btn-delete-schedule:hover {
   opacity: 1;
   color: var(--danger);
+}
+.btn-copy-schedule:hover {
+  opacity: 1;
+  color: var(--primary);
+}
+.sync-item {
+  transition: background 0.15s;
+}
+.sync-item:hover {
+  background: var(--glass-bg-subtle);
 }
 
 /* ================================================================
