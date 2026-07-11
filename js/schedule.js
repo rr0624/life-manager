@@ -606,15 +606,27 @@ const SchedulePage = {
               <input id="sched-date" class="input" type="date" value="${preset.date || Utils.formatDate(this.currentDate)}">
             </div>
           </div>
-          <div style="margin-bottom:12px;">
-            <label class="form-label">开始时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);font-size:11px;">（点击选择，可选）</span></label>
-            <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-h-btns">${this._renderTimePicker('time', preset.time).hBtns}</div>
-            <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-m-btns">${this._renderTimePicker('time', preset.time).mBtns}</div>
+          <!-- 开始时间 — 可折叠 -->
+          <div style="margin-bottom:10px;border:var(--glass-border-subtle);border-radius:10px;overflow:hidden;">
+            <div class="time-toggle" id="time-toggle-start" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;font-size:14px;user-select:none;">
+              <span>🕐 开始时间</span>
+              <span style="color:var(--text-tertiary);font-size:12px;" id="time-label-start">${preset.time || '未设置'}</span>
+            </div>
+            <div class="time-picker-body" id="time-body-start" style="display:${preset.time ? 'block' : 'none'};padding:0 10px 8px;">
+              <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-h-btns">${this._renderTimePicker('time', preset.time).hBtns}</div>
+              <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-m-btns">${this._renderTimePicker('time', preset.time).mBtns}</div>
+            </div>
           </div>
-          <div style="margin-bottom:12px;">
-            <label class="form-label">结束时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);font-size:11px;">（可选）</span></label>
-            <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-h-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).hBtns}</div>
-            <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-m-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).mBtns}</div>
+          <!-- 结束时间 — 可折叠 -->
+          <div style="margin-bottom:10px;border:var(--glass-border-subtle);border-radius:10px;overflow:hidden;">
+            <div class="time-toggle" id="time-toggle-end" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;font-size:14px;user-select:none;">
+              <span>🕐 结束时间</span>
+              <span style="color:var(--text-tertiary);font-size:12px;" id="time-label-end">${preset.timeEnd || '未设置'}</span>
+            </div>
+            <div class="time-picker-body" id="time-body-end" style="display:${preset.timeEnd ? 'block' : 'none'};padding:0 10px 8px;">
+              <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-h-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).hBtns}</div>
+              <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-m-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).mBtns}</div>
+            </div>
           </div>
           <input type="hidden" id="sched-time-h" value="${preset.time ? preset.time.split(':')[0] : ''}">
           <input type="hidden" id="sched-time-m" value="${preset.time ? preset.time.split(':')[1] : ''}">
@@ -627,6 +639,14 @@ const SchedulePage = {
       </div>`;
 
     document.body.appendChild(overlay);
+
+    // 折叠切换
+    overlay.querySelectorAll('.time-toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const body = toggle.nextElementSibling;
+        if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+      });
+    });
 
     // 时间芯片点击事件
     overlay.querySelectorAll('.time-chip').forEach(chip => {
@@ -645,6 +665,14 @@ const SchedulePage = {
         // 更新隐藏值
         const hidden = overlay.querySelector('#' + hiddenId);
         if (hidden) hidden.value = val;
+
+        // 更新折叠标签显示
+        const hVal = overlay.querySelector('#sched-' + prefix + '-h');
+        const mVal = overlay.querySelector('#sched-' + prefix + '-m');
+        const label = overlay.querySelector('#time-label-' + (prefix === 'time' ? 'start' : 'end'));
+        if (label && hVal && mVal) {
+          label.textContent = (hVal.value && mVal.value) ? hVal.value + ':' + mVal.value : '未设置';
+        }
       });
     });
 

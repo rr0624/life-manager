@@ -1187,6 +1187,7 @@ body::before {
   opacity: 1;
   color: var(--primary);
 }
+.time-toggle:hover { background: var(--glass-bg-subtle); }
 .time-chip {
   padding: 5px 8px;
   border-radius: 6px;
