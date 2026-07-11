@@ -405,25 +405,20 @@ const SchedulePage = {
     await this.refresh();
   },
 
-  // 生成小时选项 (00-23)
-  _hourOptions(timeStr) {
+  _renderTimePicker(prefix, timeStr) {
     const h = timeStr ? timeStr.split(':')[0] : '';
-    let opts = '<option value="">时</option>';
-    for (let i = 0; i <= 23; i++) {
-      const v = String(i).padStart(2, '0');
-      opts += `<option value="${v}" ${v === h ? 'selected' : ''}>${v}</option>`;
-    }
-    return opts;
-  },
-  // 生成分钟选项 (5分钟间隔)
-  _minOptions(timeStr) {
     const m = timeStr ? timeStr.split(':')[1] : '';
-    let opts = '<option value="">分</option>';
+    let hBtns = '';
+    for (let i = 6; i <= 23; i++) {
+      const v = String(i).padStart(2, '0');
+      hBtns += `<button class="time-chip${v === h ? ' active' : ''}" data-pick="${prefix}h" data-val="${v}">${v}</button>`;
+    }
+    let mBtns = '';
     for (let i = 0; i < 60; i += 5) {
       const v = String(i).padStart(2, '0');
-      opts += `<option value="${v}" ${v === m ? 'selected' : ''}>${v}</option>`;
+      mBtns += `<button class="time-chip${v === m ? ' active' : ''}" data-pick="${prefix}m" data-val="${v}">${v}</button>`;
     }
-    return opts;
+    return { hBtns, mBtns };
   },
 
   // ================================================================
@@ -612,21 +607,19 @@ const SchedulePage = {
             </div>
           </div>
           <div style="margin-bottom:12px;">
-            <label class="form-label">开始时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);">（可选）</span></label>
-            <div style="display:flex;gap:6px;">
-              <select id="sched-time-h" class="input" style="flex:1;padding:10px 8px;">${this._hourOptions(preset.time)}</select>
-              <span style="line-height:42px;color:var(--text-tertiary);">:</span>
-              <select id="sched-time-m" class="input" style="flex:1;padding:10px 8px;">${this._minOptions(preset.time)}</select>
-            </div>
+            <label class="form-label">开始时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);font-size:11px;">（点击选择，可选）</span></label>
+            <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-h-btns">${this._renderTimePicker('time', preset.time).hBtns}</div>
+            <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-m-btns">${this._renderTimePicker('time', preset.time).mBtns}</div>
           </div>
           <div style="margin-bottom:12px;">
-            <label class="form-label">结束时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);">（可选）</span></label>
-            <div style="display:flex;gap:6px;">
-              <select id="sched-time-end-h" class="input" style="flex:1;padding:10px 8px;">${this._hourOptions(preset.timeEnd)}</select>
-              <span style="line-height:42px;color:var(--text-tertiary);">:</span>
-              <select id="sched-time-end-m" class="input" style="flex:1;padding:10px 8px;">${this._minOptions(preset.timeEnd)}</select>
-            </div>
+            <label class="form-label">结束时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);font-size:11px;">（可选）</span></label>
+            <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-h-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).hBtns}</div>
+            <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-m-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).mBtns}</div>
           </div>
+          <input type="hidden" id="sched-time-h" value="${preset.time ? preset.time.split(':')[0] : ''}">
+          <input type="hidden" id="sched-time-m" value="${preset.time ? preset.time.split(':')[1] : ''}">
+          <input type="hidden" id="sched-time-end-h" value="${preset.timeEnd ? preset.timeEnd.split(':')[0] : ''}">
+          <input type="hidden" id="sched-time-end-m" value="${preset.timeEnd ? preset.timeEnd.split(':')[1] : ''}">
           <button class="btn btn-primary btn-block" id="btn-save-schedule">
             ${isEdit ? '更新日程' : '保存日程'}
           </button>
@@ -634,6 +627,26 @@ const SchedulePage = {
       </div>`;
 
     document.body.appendChild(overlay);
+
+    // 时间芯片点击事件
+    overlay.querySelectorAll('.time-chip').forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pick = chip.dataset.pick;
+        const val = chip.dataset.val;
+        const prefix = pick.includes('End') ? 'timeEnd' : 'time';
+        const type = pick.endsWith('h') ? 'h' : 'm';
+        const hiddenId = 'sched-' + prefix + '-' + type;
+
+        // 同类按钮取消选中
+        overlay.querySelectorAll(`[data-pick="${pick}"]`).forEach(b => b.classList.remove('active'));
+        chip.classList.add('active');
+
+        // 更新隐藏值
+        const hidden = overlay.querySelector('#' + hiddenId);
+        if (hidden) hidden.value = val;
+      });
+    });
 
     const closeModal = () => overlay.remove();
     overlay.querySelector('.modal-close').addEventListener('click', closeModal);

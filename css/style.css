@@ -1187,6 +1187,28 @@ body::before {
   opacity: 1;
   color: var(--primary);
 }
+.time-chip {
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: var(--glass-border-subtle);
+  background: var(--glass-bg-subtle);
+  font-size: 12px;
+  font-family: var(--font);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+  min-width: 32px;
+  text-align: center;
+}
+.time-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: var(--fw-semibold);
+}
+
 .sync-item {
   transition: background 0.15s;
 }
