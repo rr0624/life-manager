@@ -3,15 +3,15 @@ const CACHE_NAME = "life-manager-v16"';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=18',
-  './js/app.js?v=18',
-  './js/db.js?v=18',
-  './js/ai.js?v=18',
-  './js/nav.js?v=18',
-  './js/schedule.js?v=18',
-  './js/goals.js?v=18',
-  './js/records.js?v=18',
-  './js/utils.js?v=18',
+  './css/style.css?v=19',
+  './js/app.js?v=19',
+  './js/db.js?v=19',
+  './js/ai.js?v=19',
+  './js/nav.js?v=19',
+  './js/schedule.js?v=19',
+  './js/goals.js?v=19',
+  './js/records.js?v=19',
+  './js/utils.js?v=19',
   './manifest.json'
 ];
 

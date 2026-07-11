@@ -648,7 +648,7 @@ const SchedulePage = {
       });
     });
 
-    // 时间芯片点击事件
+    // 时间芯片点击事件（再次点击取消选中）
     overlay.querySelectorAll('.time-chip').forEach(chip => {
       chip.addEventListener('click', (e) => {
         e.preventDefault();
@@ -657,16 +657,19 @@ const SchedulePage = {
         const prefix = pick.includes('End') ? 'timeEnd' : 'time';
         const type = pick.endsWith('h') ? 'h' : 'm';
         const hiddenId = 'sched-' + prefix + '-' + type;
-
-        // 同类按钮取消选中
-        overlay.querySelectorAll(`[data-pick="${pick}"]`).forEach(b => b.classList.remove('active'));
-        chip.classList.add('active');
-
-        // 更新隐藏值
         const hidden = overlay.querySelector('#' + hiddenId);
-        if (hidden) hidden.value = val;
 
-        // 更新折叠标签显示
+        // 如果已选中，取消
+        if (chip.classList.contains('active')) {
+          chip.classList.remove('active');
+          if (hidden) hidden.value = '';
+        } else {
+          overlay.querySelectorAll('[data-pick=\"' + pick + '\"]').forEach(b => b.classList.remove('active'));
+          chip.classList.add('active');
+          if (hidden) hidden.value = val;
+        }
+
+        // 更新折叠标签
         const hVal = overlay.querySelector('#sched-' + prefix + '-h');
         const mVal = overlay.querySelector('#sched-' + prefix + '-m');
         const label = overlay.querySelector('#time-label-' + (prefix === 'time' ? 'start' : 'end'));
