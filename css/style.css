@@ -183,8 +183,8 @@
    BASE
    ================================================================ */
 html, body {
-  height: 100%;
-  width: 100%;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
   font-family: var(--font);
   font-size: var(--fs-body);

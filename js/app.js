@@ -41,10 +41,7 @@ const App = {
       }
     }
 
-    // 8. 锁定视口：键盘弹出时不滚动
-    this._lockViewport();
-
-    // 9. 处理 PWA 安装提示
+    // 8. 处理 PWA 安装提示
     this._handleInstallPrompt();
 
     console.log('应用初始化完成 ✓');
@@ -370,25 +367,6 @@ const App = {
     });
   },
 
-  // ===== 锁定视口：防止键盘弹出时页面上移 =====
-  _lockViewport() {
-    if (!window.visualViewport) return;
-    const app = document.getElementById('app');
-    if (!app) return;
-
-    const originalHeight = window.innerHeight;
-
-    window.visualViewport.addEventListener('resize', () => {
-      const vv = window.visualViewport;
-      // 键盘弹出时，强制保持页面位置
-      if (vv.height < originalHeight * 0.85) {
-        app.style.height = vv.height + 'px';
-        app.style.overflow = 'hidden';
-      } else {
-        app.style.height = '100%';
-      }
-    });
-  },
 
   // ===== Toast =====
   _showToast(msg) {
