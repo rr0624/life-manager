@@ -1,6 +1,6 @@
 /* ================================================================
-   Life Manager — 轻拟物磨砂玻璃 UI 系统
-   浅色/深色双主题 · 分层景深 · 克制动效
+   Life Manager — Apple 精致优雅设计
+   SF Pro 字体 · Action Blue · 克制留白
    ================================================================ */
 
 /* ===== CSS Reset ===== */
@@ -10,51 +10,51 @@
    DESIGN TOKENS — 浅色主题 (默认)
    ================================================================ */
 :root {
-  /* == 主色系 == */
-  --primary: #3B82F6;
-  --primary-light: rgba(59, 130, 246, 0.12);
-  --primary-glow: rgba(59, 130, 246, 0.25);
-  --purple: #8B5CF6;
-  --purple-light: rgba(139, 92, 246, 0.12);
-  --mint: #10B981;
-  --mint-light: rgba(16, 185, 129, 0.12);
+  /* == 主色系 — Apple Action Blue == */
+  --primary: #0066cc;
+  --primary-light: rgba(0, 102, 204, 0.10);
+  --primary-glow: rgba(0, 102, 204, 0.20);
+  --purple: #8944ab;
+  --purple-light: rgba(137, 68, 171, 0.10);
+  --mint: #30a46c;
+  --mint-light: rgba(48, 164, 108, 0.10);
 
   /* == 语义色 == */
-  --danger: #EF4444;
-  --danger-light: rgba(239, 68, 68, 0.10);
-  --success: #10B981;
-  --success-light: rgba(16, 185, 129, 0.10);
-  --warning: #F59E0B;
+  --danger: #cc2939;
+  --danger-light: rgba(204, 41, 57, 0.08);
+  --success: #30a46c;
+  --success-light: rgba(48, 164, 108, 0.08);
+  --warning: #e68a00;
 
-  /* == 玻璃效果 == */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-bg-strong: rgba(255, 255, 255, 0.88);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.48);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.50);
-  --glass-border-subtle: 1px solid rgba(0, 0, 0, 0.06);
-  --glass-blur: saturate(180%) blur(20px);
-  --glass-blur-heavy: saturate(180%) blur(30px);
+  /* == 玻璃效果 — Apple 克制半透明 == */
+  --glass-bg: rgba(255, 255, 255, 0.80);
+  --glass-bg-strong: rgba(255, 255, 255, 0.94);
+  --glass-bg-subtle: rgba(0, 0, 0, 0.04);
+  --glass-border: 1px solid rgba(0, 0, 0, 0.08);
+  --glass-border-subtle: 1px solid rgba(0, 0, 0, 0.05);
+  --glass-blur: blur(12px);
+  --glass-blur-heavy: blur(20px);
 
-  /* == 深度层级 (弥散阴影) == */
-  --depth-1: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --depth-2: 0 8px 32px rgba(0, 0, 0, 0.06);
-  --depth-3: 0 16px 48px rgba(0, 0, 0, 0.10);
-  --depth-glow: 0 0 0 3px var(--primary-glow);
+  /* == 深度 — Apple 单层投影 == */
+  --depth-1: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --depth-2: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --depth-3: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --depth-glow: 0 0 0 2px var(--primary-glow);
 
-  /* == 圆角 == */
-  --radius-xs: 8px;
-  --radius-sm: 10px;
-  --radius: 14px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  /* == 圆角 — Apple 柔和圆角 == */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* == 排版 == */
-  --font: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+  /* == 排版 — SF Pro 字体系列 == */
+  --font: 'SF Pro Text', 'SF Pro Display', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', monospace;
   --fs-title: 28px;
   --fs-heading: 20px;
-  --fs-body: 16px;
+  --fs-body: 17px;
   --fs-small: 14px;
   --fs-caption: 12px;
   --fw-light: 300;
@@ -62,31 +62,31 @@
   --fw-medium: 500;
   --fw-semibold: 600;
 
-  /* == 文字色 == */
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-tertiary: #94a3b8;
+  /* == 文字色 — Apple Ink == */
+  --text-primary: #1d1d1f;
+  --text-secondary: #7a7a7a;
+  --text-tertiary: #999999;
   --text-inverse: #ffffff;
 
-  /* == 背景 == */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-tertiary: #e2e8f0;
+  /* == 背景 — Apple Canvas == */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f7;
+  --bg-tertiary: #e8e8ed;
 
   /* == 六大分类色 == */
-  --cat-learning: #8B5CF6;
-  --cat-career: #3B82F6;
-  --cat-material: #F59E0B;
-  --cat-health: #10B981;
-  --cat-entertainment: #EC4899;
-  --cat-relationship: #F97316;
+  --cat-learning: #8944ab;
+  --cat-career: #0066cc;
+  --cat-material: #e68a00;
+  --cat-health: #30a46c;
+  --cat-entertainment: #d43f7a;
+  --cat-relationship: #e05a33;
 
-  --cat-learning-bg: rgba(139, 92, 246, 0.12);
-  --cat-career-bg: rgba(59, 130, 246, 0.12);
-  --cat-material-bg: rgba(245, 158, 11, 0.12);
-  --cat-health-bg: rgba(16, 185, 129, 0.12);
-  --cat-entertainment-bg: rgba(236, 72, 153, 0.12);
-  --cat-relationship-bg: rgba(249, 115, 22, 0.12);
+  --cat-learning-bg: rgba(137, 68, 171, 0.10);
+  --cat-career-bg: rgba(0, 102, 204, 0.10);
+  --cat-material-bg: rgba(230, 138, 0, 0.10);
+  --cat-health-bg: rgba(48, 164, 108, 0.10);
+  --cat-entertainment-bg: rgba(212, 63, 122, 0.10);
+  --cat-relationship-bg: rgba(224, 90, 51, 0.10);
 
   /* == 布局 == */
   --nav-height: 80px;
@@ -113,69 +113,69 @@
    DESIGN TOKENS — 深色主题
    ================================================================ */
 [data-theme="dark"] {
-  --primary: #60A5FA;
-  --primary-light: rgba(96, 165, 250, 0.15);
-  --primary-glow: rgba(96, 165, 250, 0.25);
+  --primary: #2997ff;
+  --primary-light: rgba(41, 151, 255, 0.15);
+  --primary-glow: rgba(41, 151, 255, 0.25);
 
-  --glass-bg: rgba(30, 41, 59, 0.72);
-  --glass-bg-strong: rgba(30, 41, 59, 0.90);
-  --glass-bg-subtle: rgba(30, 41, 59, 0.48);
+  --glass-bg: rgba(29, 29, 31, 0.80);
+  --glass-bg-strong: rgba(29, 29, 31, 0.94);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.06);
   --glass-border: 1px solid rgba(255, 255, 255, 0.10);
   --glass-border-subtle: 1px solid rgba(255, 255, 255, 0.06);
 
-  --depth-1: 0 2px 8px rgba(0, 0, 0, 0.20);
-  --depth-2: 0 8px 32px rgba(0, 0, 0, 0.30);
-  --depth-3: 0 16px 48px rgba(0, 0, 0, 0.40);
+  --depth-1: 0 1px 4px rgba(0, 0, 0, 0.20);
+  --depth-2: 0 4px 16px rgba(0, 0, 0, 0.30);
+  --depth-3: 0 8px 32px rgba(0, 0, 0, 0.40);
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-tertiary: #64748b;
-  --text-inverse: #0f172a;
+  --text-primary: #f5f5f7;
+  --text-secondary: #cccccc;
+  --text-tertiary: #7a7a7a;
+  --text-inverse: #1d1d1f;
 
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
+  --bg-primary: #000000;
+  --bg-secondary: #1d1d1f;
+  --bg-tertiary: #2a2a2c;
 
-  --cat-learning-bg: rgba(139, 92, 246, 0.18);
-  --cat-career-bg: rgba(96, 165, 250, 0.18);
-  --cat-material-bg: rgba(245, 158, 11, 0.18);
-  --cat-health-bg: rgba(16, 185, 129, 0.18);
-  --cat-entertainment-bg: rgba(236, 72, 153, 0.18);
-  --cat-relationship-bg: rgba(249, 115, 22, 0.18);
+  --cat-learning-bg: rgba(191, 90, 242, 0.18);
+  --cat-career-bg: rgba(41, 151, 255, 0.18);
+  --cat-material-bg: rgba(255, 179, 64, 0.18);
+  --cat-health-bg: rgba(48, 209, 88, 0.18);
+  --cat-entertainment-bg: rgba(255, 55, 95, 0.18);
+  --cat-relationship-bg: rgba(255, 159, 10, 0.18);
 }
 
 /* 系统偏好自动跟随 */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --primary: #60A5FA;
-    --primary-light: rgba(96, 165, 250, 0.15);
-    --primary-glow: rgba(96, 165, 250, 0.25);
+    --primary: #2997ff;
+    --primary-light: rgba(41, 151, 255, 0.15);
+    --primary-glow: rgba(41, 151, 255, 0.25);
 
-    --glass-bg: rgba(30, 41, 59, 0.72);
-    --glass-bg-strong: rgba(30, 41, 59, 0.90);
-    --glass-bg-subtle: rgba(30, 41, 59, 0.48);
+    --glass-bg: rgba(29, 29, 31, 0.80);
+    --glass-bg-strong: rgba(29, 29, 31, 0.94);
+    --glass-bg-subtle: rgba(255, 255, 255, 0.06);
     --glass-border: 1px solid rgba(255, 255, 255, 0.10);
     --glass-border-subtle: 1px solid rgba(255, 255, 255, 0.06);
 
-    --depth-1: 0 2px 8px rgba(0, 0, 0, 0.20);
-    --depth-2: 0 8px 32px rgba(0, 0, 0, 0.30);
-    --depth-3: 0 16px 48px rgba(0, 0, 0, 0.40);
+    --depth-1: 0 1px 4px rgba(0, 0, 0, 0.20);
+    --depth-2: 0 4px 16px rgba(0, 0, 0, 0.30);
+    --depth-3: 0 8px 32px rgba(0, 0, 0, 0.40);
 
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-tertiary: #64748b;
-    --text-inverse: #0f172a;
+    --text-primary: #f5f5f7;
+    --text-secondary: #cccccc;
+    --text-tertiary: #7a7a7a;
+    --text-inverse: #1d1d1f;
 
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-tertiary: #334155;
+    --bg-primary: #000000;
+    --bg-secondary: #1d1d1f;
+    --bg-tertiary: #2a2a2c;
 
-    --cat-learning-bg: rgba(139, 92, 246, 0.18);
-    --cat-career-bg: rgba(96, 165, 250, 0.18);
-    --cat-material-bg: rgba(245, 158, 11, 0.18);
-    --cat-health-bg: rgba(16, 185, 129, 0.18);
-    --cat-entertainment-bg: rgba(236, 72, 153, 0.18);
-    --cat-relationship-bg: rgba(249, 115, 22, 0.18);
+    --cat-learning-bg: rgba(191, 90, 242, 0.18);
+    --cat-career-bg: rgba(41, 151, 255, 0.18);
+    --cat-material-bg: rgba(255, 179, 64, 0.18);
+    --cat-health-bg: rgba(48, 209, 88, 0.18);
+    --cat-entertainment-bg: rgba(255, 55, 95, 0.18);
+    --cat-relationship-bg: rgba(255, 159, 10, 0.18);
   }
 }
 
@@ -197,21 +197,7 @@ html, body {
               color var(--duration-slow) var(--ease-out);
 }
 
-/* 页面柔光背景 */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 0% 0%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: -1;
-  transition: opacity var(--duration-slow);
-}
-[data-theme="dark"] body::before {
-  opacity: 0.5;
-}
+/* 页面纯色背景 — Apple 克制无渐变 */
 
 /* 自定义滚动条 — 全局隐藏 */
 ::-webkit-scrollbar { width: 0; height: 0; }
