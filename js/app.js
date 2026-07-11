@@ -167,9 +167,8 @@ const App = {
                 <label class="form-label">API 密钥</label>
                 <input id="setting-api-key" class="input" type="text"
                        value="${Utils.escapeHtml(settings.aiApiKey || '')}"
-                       placeholder="sk-..." autocomplete="off" spellcheck="false">
+                       placeholder="sk-..." autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
                 <div class="settings-hint">密钥仅保存在本地浏览器</div>
-                <button class="btn btn-sm btn-ghost" id="btn-toggle-key" style="margin-top:6px;">🔒 隐藏</button>
               </div>
               <div class="form-group">
                 <label class="form-label">API 接口地址</label>
@@ -240,19 +239,6 @@ const App = {
         overlay.querySelectorAll('.theme-toggle-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       });
-    });
-
-    // 显示/隐藏 API Key
-    const keyInput = overlay.querySelector('#setting-api-key');
-    const toggleKeyBtn = overlay.querySelector('#btn-toggle-key');
-    toggleKeyBtn.addEventListener('click', () => {
-      if (keyInput.type === 'text') {
-        keyInput.type = 'password';
-        toggleKeyBtn.textContent = '👁 显示';
-      } else {
-        keyInput.type = 'text';
-        toggleKeyBtn.textContent = '🔒 隐藏';
-      }
     });
 
     // 保存设置（Bug修复：先Toast后关闭，异步后置）
