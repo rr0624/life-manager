@@ -78,10 +78,10 @@ const App = {
     app.innerHTML = `
       <!-- 头部 -->
       <header class="app-header">
+        <button class="header-btn header-btn-left" id="btn-install-app" aria-label="安装应用" title="安装到桌面">📲</button>
         <h1>生活管理</h1>
         <div class="subtitle">日 程 · 目 标 · 记 录</div>
         <div class="header-actions">
-          <button class="header-btn" id="btn-install-app" aria-label="安装应用" title="安装到桌面">📲</button>
           <button class="header-btn" id="btn-theme-toggle" aria-label="主题切换" title="主题切换">🌓</button>
           <button class="header-btn" id="btn-settings" aria-label="设置" title="设置">⚙</button>
         </div>
@@ -300,34 +300,23 @@ const App = {
     });
   },
 
-  // ===== 安装引导弹窗 =====
+  // ===== 安装引导 — 轻提示不遮盖UI =====
   _showInstallGuide() {
     const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="modal">
-        <div class="modal-header">
-          <div class="modal-title">📲 安装到桌面</div>
-          <button class="modal-close">✕</button>
-        </div>
-        <div class="modal-body" style="text-align:center;">
-          ${isIOS ? `
-            <div style="font-size:48px;margin:12px 0;">📱</div>
-            <p style="margin-bottom:12px;line-height:1.8;">点击底部 <b style="background:#007aff;color:#fff;padding:2px 8px;border-radius:4px;">分享</b> 按钮</p>
-            <p style="margin-bottom:12px;line-height:1.8;">下滑找到 <b>「添加到主屏幕」</b></p>
-            <p style="color:var(--text-tertiary);font-size:13px;">安装后键盘不挤压页面，体验和原生 App 一样</p>
-          ` : `
-            <div style="font-size:48px;margin:12px 0;">📱</div>
-            <p style="margin-bottom:12px;line-height:1.8;">点击右上角 <b>⋮</b> 菜单</p>
-            <p style="margin-bottom:12px;line-height:1.8;">选择 <b>「添加到桌面」</b> 或 <b>「安装应用」</b></p>
-            <p style="color:var(--text-tertiary);font-size:13px;">安装后键盘不挤压页面，体验和原生 App 一样</p>
-          `}
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    const tip = document.createElement('div');
+    tip.style.cssText = `
+      position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:300;
+      background:var(--glass-bg-strong); backdrop-filter:blur(12px);
+      border-radius:12px; padding:14px 18px; max-width:280px; width:90%;
+      box-shadow:0 4px 24px rgba(0,0,0,0.12); text-align:center;
+      font-size:13px; line-height:1.7; animation:toastIn 0.2s ease-out;
+    `;
+    tip.innerHTML = isIOS
+      ? `<b>📲 安装到桌面</b><br>点击 Safari 底部 <b style="background:#007aff;color:#fff;padding:1px 6px;border-radius:3px;">分享</b> → 添加到主屏幕<br><span style="color:var(--text-tertiary);font-size:11px;">键盘不再挤压页面</span>`
+      : `<b>📲 安装到桌面</b><br>点击浏览器 <b>⋮</b> 菜单 → 添加到桌面<br><span style="color:var(--text-tertiary);font-size:11px;">键盘不再挤压页面</span>`;
+    document.body.appendChild(tip);
+    tip.addEventListener('click', () => tip.remove());
+    setTimeout(() => { if (tip.parentNode) tip.remove(); }, 5000);
   },
 
   // ===== PWA 安装提示 =====

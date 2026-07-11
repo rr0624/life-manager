@@ -286,6 +286,12 @@ html, body {
   color: var(--primary);
 }
 .header-btn:active { transform: scale(0.92); }
+.header-btn-left {
+  position: absolute;
+  left: var(--content-padding);
+  top: 50%;
+  transform: translateY(-50%);
+}
 
 /* ===== Page Container ===== */
 .page-container {
