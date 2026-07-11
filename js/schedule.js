@@ -22,7 +22,7 @@ const SchedulePage = {
           <button data-view="list">📋 列表</button>
           <button data-view="calendar">📅 日历</button>
         </div>
-        <button class="btn btn-sm btn-primary" id="btn-sync-open" title="同步日程" style="margin-left:10px;">🔄 同步</button>
+        <button class="btn btn-sm btn-primary" id="btn-sync-open" title="同步日程" style="margin-left:10px;">🔄</button>
       </div>
 
       <!-- 时间线视图 — 默认显示 -->
@@ -431,8 +431,8 @@ const SchedulePage = {
           <div class="form-group">
             <label class="form-label">同步类型</label>
             <div class="sync-type-chips" id="sync-type-chips">
-              <button class="sync-chip active-weekly" data-type="weekly">📆 周同步 <span style="font-size:11px;opacity:0.7;">薄荷绿</span></button>
-              <button class="sync-chip" data-type="monthly">📅 月同步 <span style="font-size:11px;opacity:0.7;">浅紫</span></button>
+              <button class="sync-chip active-weekly" data-type="weekly">📆 周同步</button>
+              <button class="sync-chip" data-type="monthly">📅 月同步</button>
             </div>
           </div>
 
