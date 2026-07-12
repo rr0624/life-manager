@@ -229,8 +229,8 @@ const SchedulePage = {
         <button class="btn btn-sm ${filter==='today'?'btn-primary':'btn-ghost'}" data-list-filter="today">今天</button>
         <button class="btn btn-sm ${filter==='week'?'btn-primary':'btn-ghost'}" data-list-filter="week">本周</button>
         <button class="btn btn-sm ${filter==='all'?'btn-primary':'btn-ghost'}" data-list-filter="all">全部</button>
-        <input id="list-custom-date" class="input" type="date" value="${this.currentDate.toISOString().slice(0,10)}" style="width:130px;padding:6px 8px;font-size:12px;display:${filter==='custom'?'block':'none'};">
-        <button class="btn btn-sm btn-ghost" data-list-filter="custom" style="font-size:11px;">📅 自选</button>
+        <button class="btn btn-sm ${filter==='custom'?'btn-primary':'btn-ghost'}" data-list-filter="custom" style="font-size:11px;">📅 自选</button>
+        ${filter === 'custom' ? `<input id="list-custom-date" class="input" type="date" value="${this.currentDate.toISOString().slice(0,10)}" style="width:130px;padding:6px 8px;font-size:12px;">` : ''}
       </div>`;
 
     // 根据筛选条件获取日程
