@@ -987,7 +987,7 @@ input[type="date"].input {
    ================================================================ */
 .toast {
   position: fixed;
-  top: 24px;
+  top: calc(env(safe-area-inset-top, 0px) + 24px);
   left: 50%;
   transform: translateX(-50%);
   padding: 8px 18px;
@@ -1012,7 +1012,6 @@ input[type="date"].input {
 }
 .toast.show {
   opacity: 1;
-  top: 24px;
   animation: toastIn var(--duration-normal) var(--ease-out);
 }
 @keyframes toastIn {
@@ -2067,8 +2066,6 @@ input[type="date"].input {
 }
 .fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(var(--primary-rgb), 0.45); }
 .fab:active { transform: scale(0.88); }
-@media (max-width: 480px) { .fab { right: 16px; } }
-
 /* ================================================================
    BOTTOM NAVIGATION
    ================================================================ */
@@ -2254,5 +2251,9 @@ input[type="date"].input {
   .btn { padding: 10px 16px; }
   .btn-sm { padding: 6px 12px; font-size: 11px; }
 
-  .toast { padding: 7px 16px; font-size: 12px; top: 16px; }
+  .toast { padding: 7px 16px; font-size: 12px; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+
+  /* 聊天操作按钮 — 移动端更紧凑 */
+  #page-records .chat-actions .btn { padding: 8px 0; font-size: 12px; }
+  #page-records .chat-send-btn { width: 38px; height: 38px; }
 }
