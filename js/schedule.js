@@ -1,9 +1,10 @@
 // 日程模块 — 时间线优先 + 周/月同步
 
 const SchedulePage = {
-  currentView: 'timeline',   // 默认时间线
+  currentView: 'calendar',
   currentDate: new Date(),
   calendarMonth: new Date(),
+  listFilter: 'today',       // 列表默认显示今天
 
   // ===== 渲染页面 =====
   async render() {
@@ -18,9 +19,9 @@ const SchedulePage = {
       <!-- 视图切换 — 三栏平行 -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div class="view-toggle" id="view-toggle" style="flex:1;">
-          <button data-view="timeline" class="active">🕐 时间线</button>
+          <button data-view="calendar" class="active">📅 日历</button>
+          <button data-view="timeline">🕐 时间线</button>
           <button data-view="list">📋 列表</button>
-          <button data-view="calendar">📅 日历</button>
         </div>
         <button class="btn btn-sm btn-primary" id="btn-sync-open" title="同步日程" style="margin-left:10px;">🔄</button>
       </div>
@@ -46,10 +47,9 @@ const SchedulePage = {
   },
 
   async refresh() {
-    // 渲染当前活跃视图
-    if (this.currentView === 'timeline') await this._renderTimeline();
+    if (this.currentView === 'calendar') await this._renderCalendar();
+    else if (this.currentView === 'timeline') await this._renderTimeline();
     else if (this.currentView === 'list') await this._loadSchedules();
-    else if (this.currentView === 'calendar') await this._renderCalendar();
   },
 
   // ===== 事件绑定 =====
@@ -213,30 +213,74 @@ const SchedulePage = {
   // ================================================================
   async _loadSchedules() {
     const container = document.getElementById('list-view');
-    const emptyEl = document.getElementById('schedules-empty');
     if (!container) return;
 
-    // 隐藏其他视图的空状态
-    if (emptyEl) emptyEl.style.display = 'none';
+    const today = Utils.formatDate();
+    const filter = this.listFilter || 'today';
 
-    const date = Utils.formatDate(this.currentDate);
-    const schedules = await DB.getSchedulesByDate(date);
+    // 日期筛选栏
+    const filterBar = `
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-sm ${filter==='today'?'btn-primary':'btn-ghost'}" data-list-filter="today">今天</button>
+        <button class="btn btn-sm ${filter==='week'?'btn-primary':'btn-ghost'}" data-list-filter="week">本周</button>
+        <button class="btn btn-sm ${filter==='all'?'btn-primary':'btn-ghost'}" data-list-filter="all">全部</button>
+        <input id="list-custom-date" class="input" type="date" value="${this.currentDate.toISOString().slice(0,10)}" style="width:130px;padding:6px 8px;font-size:12px;display:${filter==='custom'?'block':'none'};">
+        <button class="btn btn-sm btn-ghost" data-list-filter="custom" style="font-size:11px;">📅 自选</button>
+      </div>`;
 
-    if (schedules.length === 0) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>当天暂无日程</p></div>';
-      return;
+    // 根据筛选条件获取日程
+    let schedules;
+    if (filter === 'today') {
+      schedules = await DB.getSchedulesByDate(Utils.formatDate(this.currentDate));
+    } else if (filter === 'week') {
+      const week = Utils.getWeekRange(this.currentDate);
+      schedules = await DB.getSchedulesByDateRange(week.start, week.end);
+    } else if (filter === 'custom') {
+      schedules = await DB.getSchedulesByDate(Utils.formatDate(this.currentDate));
+    } else {
+      // all
+      schedules = await DB.getAll('schedules');
     }
 
-    schedules.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'));
-    const isToday = date === Utils.formatDate();
-    const isTomorrow = date === Utils.formatDate(new Date(Date.now() + 86400000));
+    schedules.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
 
-    container.innerHTML = `
-      <div class="section-title">${isToday ? '📌 今天' : isTomorrow ? '📅 明天' : date}</div>
-      ${schedules.map(s => this._renderScheduleItem(s)).join('')}
-    `;
+    // 渲染
+    if (schedules.length === 0) {
+      container.innerHTML = filterBar + '<div class="empty-state"><div class="empty-icon">📋</div><p>暂无日程</p></div>';
+    } else if (filter === 'today') {
+      container.innerHTML = filterBar + `
+        <div class="section-title">${Utils.formatDate(this.currentDate) === today ? '📌 今天' : Utils.formatDate(this.currentDate)}</div>
+        ${schedules.map(s => this._renderScheduleItem(s)).join('')}`;
+    } else {
+      const grouped = {};
+      schedules.forEach(s => { if (!grouped[s.date]) grouped[s.date] = []; grouped[s.date].push(s); });
+      container.innerHTML = filterBar + Object.keys(grouped).sort().map(date => `
+        <div class="section-title">${date === today ? '📌 今天' : date === Utils.formatDate(new Date(Date.now()+86400000)) ? '📅 明天' : date}</div>
+        ${grouped[date].map(s => this._renderScheduleItem(s)).join('')}
+      `).join('');
+    }
 
     this._bindScheduleItemEvents(container);
+
+    // 筛选按钮事件
+    container.querySelectorAll('[data-list-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.listFilter = btn.dataset.listFilter;
+        if (this.listFilter === 'custom') {
+          const dateInput = container.querySelector('#list-custom-date');
+          dateInput.style.display = 'block';
+          dateInput.focus();
+        }
+        this._loadSchedules();
+      });
+    });
+    const customDateInput = container.querySelector('#list-custom-date');
+    if (customDateInput) {
+      customDateInput.addEventListener('change', () => {
+        this.currentDate = new Date(customDateInput.value + 'T00:00:00');
+        this._loadSchedules();
+      });
+    }
   },
 
   // ================================================================
