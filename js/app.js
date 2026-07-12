@@ -360,7 +360,7 @@ const App = {
   },
 
 
-  // ===== 键盘适配：只移动输入框，页面其余不动 =====
+  // ===== 键盘适配：输入框上移 + 导航隐藏 =====
   _adaptKeyboard() {
     if (!window.visualViewport) return;
     const vv = window.visualViewport;
@@ -368,20 +368,20 @@ const App = {
 
     vv.addEventListener('resize', () => {
       const inputArea = document.querySelector('#chat-input-area');
-      const pageContainer = document.querySelector('.page-container');
+      const nav = document.getElementById('bottom-nav');
+      const fab = document.getElementById('fab-btn');
       if (!inputArea) return;
 
       const keyboardHeight = initialHeight - vv.height;
       if (keyboardHeight > 50) {
-        // 键盘弹出：输入区上移
         inputArea.style.transform = `translateY(-${keyboardHeight}px)`;
         inputArea.style.transition = 'transform 0.15s ease-out';
-        // 消息区保持原位不动
-        if (pageContainer) pageContainer.style.overflow = 'hidden';
+        if (nav) nav.style.display = 'none';
+        if (fab) fab.style.display = 'none';
       } else {
-        // 键盘收起：恢复
         inputArea.style.transform = '';
-        if (pageContainer) pageContainer.style.overflow = '';
+        if (nav) nav.style.display = '';
+        if (fab) fab.style.display = '';
       }
     });
   },
