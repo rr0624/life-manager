@@ -374,12 +374,14 @@ const App = {
 
       const keyboardHeight = initialHeight - vv.height;
       if (keyboardHeight > 50) {
-        inputArea.style.transform = `translateY(-${keyboardHeight}px)`;
+        inputArea.style.transform = `translateY(-${keyboardHeight - 12}px)`;
+        inputArea.style.paddingBottom = '12px';
         inputArea.style.transition = 'transform 0.15s ease-out';
         if (nav) nav.style.display = 'none';
         if (fab) fab.style.display = 'none';
       } else {
         inputArea.style.transform = '';
+        inputArea.style.paddingBottom = '';
         if (nav) nav.style.display = '';
         if (fab) fab.style.display = '';
       }
