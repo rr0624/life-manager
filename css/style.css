@@ -1550,7 +1550,7 @@ html, body {
 #page-records .chat-bubble-user .chat-bubble-text {
   background: var(--primary);
   color: var(--text-inverse);
-  border-radius: 18px 4px 18px 18px;
+  border-radius: 18px 18px 4px 18px;
   padding: 10px 14px;
   font-size: var(--fs-body);
   line-height: 1.55;
@@ -1563,7 +1563,7 @@ html, body {
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border-subtle);
   color: var(--text-primary);
-  border-radius: 4px 18px 18px 18px;
+  border-radius: 18px 18px 18px 4px;
   padding: 10px 14px;
   font-size: var(--fs-body);
   line-height: 1.7;
