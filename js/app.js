@@ -41,20 +41,18 @@ const App = {
       }
     }
 
-    // 8. 键盘弹出时隐藏导航
+    // 8. 键盘弹出时只移动输入框，其余全部固定
     if (window.visualViewport) {
       const vv = window.visualViewport;
       const h = window.innerHeight;
       vv.addEventListener('resize', () => {
-        const nav = document.getElementById('bottom-nav');
-        const fab = document.getElementById('fab-btn');
-        if (!nav) return;
-        if (h - vv.height > 60) {
-          nav.style.display = 'none';
-          if (fab) fab.style.display = 'none';
+        const inputArea = document.querySelector('#chat-input-area');
+        if (!inputArea) return;
+        const kh = h - vv.height;
+        if (kh > 60) {
+          inputArea.style.transform = `translateY(-${kh}px)`;
         } else {
-          nav.style.display = '';
-          if (fab) fab.style.display = '';
+          inputArea.style.transform = '';
         }
       });
     }

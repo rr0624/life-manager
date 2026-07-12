@@ -1627,6 +1627,8 @@ html, body {
   padding: 8px var(--content-padding);
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
   background: var(--bg-primary);
+  position: relative;
+  z-index: 10;
 }
 #page-records .chat-input-row {
   display: flex;
