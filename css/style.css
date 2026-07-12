@@ -184,7 +184,10 @@
    ================================================================ */
 html, body {
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
+  position: fixed;
+  inset: 0;
   font-family: var(--font);
   font-size: var(--fs-body);
   font-weight: var(--fw-normal);
