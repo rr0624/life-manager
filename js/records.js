@@ -215,10 +215,13 @@ const RecordsPage = {
     const msgContainer = container?.querySelector('#chat-msg-container');
     if (!msgContainer) return;
 
+    const settings = DB.getSettings();
+    const aiAvatar = settings.aiAvatar || '';
+
     const bubbleId = 'ai-streaming-' + Date.now();
     const bubbleHtml = `
       <div class="chat-bubble chat-bubble-ai" id="${bubbleId}">
-        <div class="chat-ai-avatar">🌿</div>
+        <div class="chat-avatar chat-avatar-ai">${aiAvatar ? `<img src="${aiAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '🌿'}</div>
         <div>
           <div class="chat-bubble-text" id="${bubbleId}-text"></div>
           <div class="chat-bubble-time" id="${bubbleId}-time">正在输入...</div>
@@ -483,18 +486,25 @@ const RecordsPage = {
       welcomeEl.classList.toggle('hidden', this._messages.length > 0);
     }
 
+    const settings = DB.getSettings();
+    const userAvatar = settings.userAvatar || '';
+    const aiAvatar = settings.aiAvatar || '';
+
     let html = '';
     for (const msg of this._messages) {
       if (msg.role === 'user') {
         html += `
           <div class="chat-bubble chat-bubble-user">
-            <div class="chat-bubble-text">${Utils.escapeHtml(msg.content)}</div>
-            <div class="chat-bubble-time">${Utils.formatFriendly(msg.time)}</div>
+            <div>
+              <div class="chat-bubble-text">${Utils.escapeHtml(msg.content)}</div>
+              <div class="chat-bubble-time">${Utils.formatFriendly(msg.time)}</div>
+            </div>
+            <div class="chat-avatar chat-avatar-user" data-avatar="user" title="点击更换头像">${userAvatar ? `<img src="${userAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '😊'}</div>
           </div>`;
       } else {
         html += `
           <div class="chat-bubble chat-bubble-ai">
-            <div class="chat-ai-avatar">🌿</div>
+            <div class="chat-avatar chat-avatar-ai" data-avatar="ai" title="点击更换头像">${aiAvatar ? `<img src="${aiAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '🌿'}</div>
             <div>
               <div class="chat-bubble-text">${msg.content.replace(/\n/g, '<br>')}</div>
               <div class="chat-bubble-time">${Utils.formatFriendly(msg.time)}</div>
@@ -511,9 +521,38 @@ const RecordsPage = {
     }
     msgContainer.innerHTML = html;
 
+    // 头像点击上传
+    container.querySelectorAll('.chat-avatar').forEach(av => {
+      av.addEventListener('click', () => this._uploadAvatar(av.dataset.avatar));
+    });
+
     requestAnimationFrame(() => {
       container.scrollTop = container.scrollHeight;
     });
+  },
+
+  // 上传头像
+  _uploadAvatar(type) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result;
+        if (type === 'user') {
+          DB.saveSettings({ userAvatar: base64 });
+        } else {
+          DB.saveSettings({ aiAvatar: base64 });
+        }
+        this._renderMessages();
+        this._showToast('头像已更新 ✓');
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
   },
 
   // ===== 手动写日记 =====
