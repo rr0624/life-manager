@@ -41,7 +41,25 @@ const App = {
       }
     }
 
-    // 8. 处理 PWA 安装提示
+    // 8. 键盘弹出时隐藏导航
+    if (window.visualViewport) {
+      const vv = window.visualViewport;
+      const h = window.innerHeight;
+      vv.addEventListener('resize', () => {
+        const nav = document.getElementById('bottom-nav');
+        const fab = document.getElementById('fab-btn');
+        if (!nav) return;
+        if (h - vv.height > 60) {
+          nav.style.display = 'none';
+          if (fab) fab.style.display = 'none';
+        } else {
+          nav.style.display = '';
+          if (fab) fab.style.display = '';
+        }
+      });
+    }
+
+    // 9. 处理 PWA 安装提示
     this._handleInstallPrompt();
 
     console.log('应用初始化完成 ✓');

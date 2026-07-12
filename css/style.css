@@ -213,22 +213,25 @@ html, body {
    APP SHELL
    ================================================================ */
 #app {
+  position: fixed;
+  inset: 0;
   max-width: var(--max-width);
   margin: 0 auto;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
   overflow: hidden;
 }
 
-/* ===== Header ===== */
+/* ===== Header — 固定顶部 ===== */
 .app-header {
-  padding: 24px var(--content-padding) 18px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 16px var(--content-padding) 12px;
   text-align: center;
-  flex-shrink: 0;
-  z-index: var(--z-base);
-  position: relative;
+  z-index: var(--z-nav);
+  background: var(--bg-primary);
 }
 .app-header h1 {
   font-size: var(--fs-heading);
@@ -297,10 +300,16 @@ html, body {
 
 /* ===== Page Container ===== */
 .page-container {
-  flex: 1;
+  position: fixed;
+  top: 80px;
+  bottom: var(--nav-height);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--max-width);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 var(--content-padding) calc(var(--nav-height) + 20px);
+  padding: 0 var(--content-padding) 12px;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
@@ -316,11 +325,13 @@ html, body {
 }
 
 /* 聊天页专用 flex 布局 */
-#page-records { height: 100%; }
+#page-records { height: 100%; position: relative; }
 #page-records.active {
   display: flex;
   flex-direction: column;
   min-height: auto;
+  position: absolute;
+  inset: 0;
 }
 
 @keyframes pageIn {
