@@ -1537,23 +1537,25 @@ html, body {
   padding: 0 4px;
 }
 
-/* 聊天气泡 */
+/* 聊天气泡 — 微信式左右布局 */
 #page-records .chat-bubble {
-  max-width: 82%;
-  margin-bottom: 4px;
-  animation: pageIn var(--duration-slow) var(--ease-out);
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  margin-bottom: 8px;
+  animation: pageIn var(--duration-slow) var(--ease-out);
+  align-items: flex-end;
 }
-#page-records .chat-bubble-user { align-self: flex-end; max-width: 82%; }
-#page-records .chat-bubble-ai { align-self: flex-start; max-width: 85%; }
+#page-records .chat-bubble-user { justify-content: flex-end; }
+#page-records .chat-bubble-ai { justify-content: flex-start; }
 #page-records .chat-bubble-user .chat-bubble-text {
   background: var(--primary);
   color: var(--text-inverse);
-  border-radius: 18px 18px 4px 18px;
-  padding: 12px 16px;
+  border-radius: 18px 4px 18px 18px;
+  padding: 10px 14px;
   font-size: var(--fs-body);
   line-height: 1.55;
+  max-width: 240px;
+  word-break: break-word;
 }
 #page-records .chat-bubble-ai .chat-bubble-text {
   background: var(--glass-bg);
@@ -1561,10 +1563,12 @@ html, body {
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border-subtle);
   color: var(--text-primary);
-  border-radius: 18px 18px 18px 4px;
-  padding: 12px 16px;
+  border-radius: 4px 18px 18px 18px;
+  padding: 10px 14px;
   font-size: var(--fs-body);
   line-height: 1.7;
+  max-width: 240px;
+  word-break: break-word;
 }
 #page-records .chat-bubble-time {
   font-size: 11px;
