@@ -24,6 +24,7 @@ const SchedulePage = {
           <button data-view="list">📋 列表</button>
         </div>
         <button class="btn btn-sm btn-primary" id="btn-sync-open" title="同步日程" style="margin-left:10px;">🔄</button>
+        <button class="btn btn-sm btn-primary" id="btn-new-schedule" title="新建日程" style="margin-left:6px;">+ 新建</button>
       </div>
 
       <!-- 时间线视图 — 默认显示 -->
@@ -72,6 +73,10 @@ const SchedulePage = {
     const syncBtn = document.getElementById('btn-sync-open');
     if (syncBtn) {
       syncBtn.addEventListener('click', () => this._showSyncModal());
+    }
+    const newBtn = document.getElementById('btn-new-schedule');
+    if (newBtn) {
+      newBtn.addEventListener('click', () => this.showCreateModal());
     }
   },
 
