@@ -43,6 +43,7 @@ const SchedulePage = {
     `;
 
     this._bindEvents();
+    this._switchView();  // 确保默认视图可见
     await this.refresh();
   },
 
