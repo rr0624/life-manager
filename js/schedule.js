@@ -421,6 +421,19 @@ const SchedulePage = {
     await this.refresh();
   },
 
+  _hourOpts(timeStr) {
+    const h = timeStr ? timeStr.split(':')[0] : '';
+    let o = '<option value="">时</option>';
+    for (let i = 0; i <= 23; i++) { const v = String(i).padStart(2, '0'); o += `<option value="${v}" ${v===h?'selected':''}>${v}</option>`; }
+    return o;
+  },
+  _minOpts(timeStr) {
+    const m = timeStr ? timeStr.split(':')[1] : '';
+    let o = '<option value="">分</option>';
+    for (let i = 0; i < 60; i += 5) { const v = String(i).padStart(2, '0'); o += `<option value="${v}" ${v===m?'selected':''}>${v}</option>`; }
+    return o;
+  },
+
   // ================================================================
   //  同步弹窗 — 自选日期范围 + 周/月快捷键
   // ================================================================
@@ -610,15 +623,20 @@ const SchedulePage = {
               </div>
             </div>
           </div>
-          <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;">
-            <div class="form-group" style="flex:1;">
-              <label class="form-label">开始时间</label>
-              <input id="sched-time" class="input" type="time" value="${preset.time || ''}">
+          <div style="margin-bottom:12px;">
+            <label class="form-label">开始时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);font-size:11px;">（可选）</span></label>
+            <div style="display:flex;gap:4px;">
+              <select id="sched-time-h" class="input" style="flex:1;">${this._hourOpts(preset.time)}</select>
+              <span style="line-height:42px;color:var(--text-tertiary);flex-shrink:0;">:</span>
+              <select id="sched-time-m" class="input" style="flex:1;">${this._minOpts(preset.time)}</select>
             </div>
-            <span style="padding-bottom:10px;color:var(--text-tertiary);">—</span>
-            <div class="form-group" style="flex:1;">
-              <label class="form-label">结束时间</label>
-              <input id="sched-time-end" class="input" type="time" value="${preset.timeEnd || ''}">
+          </div>
+          <div style="margin-bottom:12px;">
+            <label class="form-label">结束时间 <span style="font-weight:var(--fw-normal);color:var(--text-tertiary);font-size:11px;">（可选）</span></label>
+            <div style="display:flex;gap:4px;">
+              <select id="sched-time-end-h" class="input" style="flex:1;">${this._hourOpts(preset.timeEnd)}</select>
+              <span style="line-height:42px;color:var(--text-tertiary);flex-shrink:0;">:</span>
+              <select id="sched-time-end-m" class="input" style="flex:1;">${this._minOpts(preset.timeEnd)}</select>
             </div>
           </div>
           <button class="btn btn-primary btn-block" id="btn-save-schedule">
@@ -647,8 +665,10 @@ const SchedulePage = {
         const titleEl = overlay.querySelector('#sched-title');
         const descEl = overlay.querySelector('#sched-desc');
         const dateEl = overlay.querySelector('#sched-date');
-        const timeEl = overlay.querySelector('#sched-time');
-        const timeEndEl = overlay.querySelector('#sched-time-end');
+        const timeH = overlay.querySelector('#sched-time-h');
+        const timeM = overlay.querySelector('#sched-time-m');
+        const timeEndH = overlay.querySelector('#sched-time-end-h');
+        const timeEndM = overlay.querySelector('#sched-time-end-m');
 
         if (!titleEl || !dateEl) {
           console.error('保存失败：找不到表单元素');
@@ -659,8 +679,8 @@ const SchedulePage = {
         const title = titleEl.value.trim();
         const description = descEl ? descEl.value.trim() : '';
         const date = dateEl.value;
-        const time = timeEl ? timeEl.value : '';
-        const timeEnd = timeEndEl ? timeEndEl.value : '';
+        const time = (timeH && timeM && timeH.value && timeM.value) ? timeH.value + ':' + timeM.value : '';
+        const timeEnd = (timeEndH && timeEndM && timeEndH.value && timeEndM.value) ? timeEndH.value + ':' + timeEndM.value : '';
 
         if (!title) { alert('请输入日程标题'); return; }
         if (!date) { alert('请选择日期'); return; }
