@@ -356,39 +356,28 @@ const RecordsPage = {
 
     emptyEl.style.display = 'none';
     listEl.innerHTML = records.map((r) => {
-      // 兼容旧格式 (content/aiReply) 和新格式 (messages[])
       const messages = r.messages || [];
-      const hasNewFormat = messages.length > 0;
-
-      let bodyHtml = '';
-      if (hasNewFormat) {
-        bodyHtml = messages.map(m => `
-          <div style="margin-bottom:10px;padding:10px 12px;border-radius:var(--radius-sm);${m.role === 'user' ? 'background:var(--bg-secondary);' : 'background:var(--primary-light);'}">
-            <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:4px;">${m.role === 'user' ? '💬 你说' : '🌿 小叶子'}</div>
-            <div style="font-size:var(--fs-small);line-height:1.7;white-space:pre-wrap;color:var(--text-primary);">${Utils.escapeHtml(m.content)}</div>
-          </div>
-        `).join('');
-      } else {
-        bodyHtml = `
-          ${r.content ? `<div style="font-size:var(--fs-body);line-height:1.8;white-space:pre-wrap;color:var(--text-primary);margin-bottom:10px;">${Utils.escapeHtml(r.content)}</div>` : ''}
-          ${r.aiReply ? `<div style="padding:10px 12px;background:var(--primary-light);border-radius:var(--radius-sm);font-size:var(--fs-small);line-height:1.7;color:var(--text-secondary);">🌿 小叶子：${Utils.escapeHtml(r.aiReply)}</div>` : ''}
-        `;
-      }
+      // 提取纯文本摘要
+      const allText = messages.map(m => m.content).join('\n');
+      const firstLine = allText.split('\n')[0] || '';
+      const preview = Utils.truncate(firstLine, 50) || '空日记';
 
       return `
-      <div class="glass-card diary-entry" data-id="${r.id}" style="position:relative;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <span style="font-size:var(--fs-caption);color:var(--text-tertiary);font-weight:var(--fw-medium);">
-            📅 ${Utils.formatFriendly(r.createdAt)}
-          </span>
-          <div style="display:flex;gap:6px;">
-            <button class="btn-icon btn-edit-diary" data-id="${r.id}" title="编辑" style="font-size:12px;width:28px;height:28px;">✏️</button>
-            <button class="btn-icon btn-del-diary" data-id="${r.id}" title="删除" style="font-size:12px;width:28px;height:28px;color:var(--danger);">🗑️</button>
-          </div>
+      <div class="memo-item" data-id="${r.id}">
+        <div class="memo-content" style="flex:1;min-width:0;">
+          <div style="font-size:var(--fs-body);font-weight:var(--fw-medium);color:var(--text-primary);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${Utils.escapeHtml(preview)}</div>
+          <div style="font-size:var(--fs-caption);color:var(--text-tertiary);">${Utils.formatFriendly(r.createdAt)} · ${messages.length} 条消息</div>
         </div>
-        ${bodyHtml}
+        <button class="btn-icon btn-del-diary" data-id="${r.id}" title="删除" style="font-size:12px;flex-shrink:0;opacity:0.4;">🗑️</button>
       </div>`;
     }).join('');
+
+    // 点击查看日记详情
+    listEl.querySelectorAll('.memo-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        await this._editDiary(parseInt(item.dataset.id));
+      });
+    });
 
     // 绑定删除
     listEl.querySelectorAll('.btn-del-diary').forEach(btn => {
@@ -398,14 +387,6 @@ const RecordsPage = {
         await DB.delete('records', parseInt(btn.dataset.id));
         this._showToast('日记已删除');
         this._loadDiaryList();
-      });
-    });
-
-    // 绑定编辑
-    listEl.querySelectorAll('.btn-edit-diary').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        await this._editDiary(parseInt(btn.dataset.id));
       });
     });
   },

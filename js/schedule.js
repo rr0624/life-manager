@@ -421,22 +421,6 @@ const SchedulePage = {
     await this.refresh();
   },
 
-  _renderTimePicker(prefix, timeStr) {
-    const h = timeStr ? timeStr.split(':')[0] : '';
-    const m = timeStr ? timeStr.split(':')[1] : '';
-    let hBtns = '';
-    for (let i = 0; i <= 23; i++) {
-      const v = String(i).padStart(2, '0');
-      hBtns += `<button class="time-chip${v === h ? ' active' : ''}" data-pick="${prefix}h" data-val="${v}">${v}</button>`;
-    }
-    let mBtns = '';
-    for (let i = 0; i < 60; i += 5) {
-      const v = String(i).padStart(2, '0');
-      mBtns += `<button class="time-chip${v === m ? ' active' : ''}" data-pick="${prefix}m" data-val="${v}">${v}</button>`;
-    }
-    return { hBtns, mBtns };
-  },
-
   // ================================================================
   //  同步弹窗 — 自选日期范围 + 周/月快捷键
   // ================================================================
@@ -626,32 +610,17 @@ const SchedulePage = {
               </div>
             </div>
           </div>
-          <!-- 开始时间 — 可折叠 -->
-          <div style="margin-bottom:10px;border:var(--glass-border-subtle);border-radius:10px;overflow:hidden;">
-            <div class="time-toggle" id="time-toggle-start" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;font-size:14px;user-select:none;">
-              <span>🕐 开始时间</span>
-              <span style="color:var(--text-tertiary);font-size:12px;" id="time-label-start">${preset.time || '未设置'}</span>
+          <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;">
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">开始时间</label>
+              <input id="sched-time" class="input" type="time" value="${preset.time || ''}">
             </div>
-            <div class="time-picker-body" id="time-body-start" style="display:${preset.time ? 'block' : 'none'};padding:0 10px 8px;">
-              <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-h-btns">${this._renderTimePicker('time', preset.time).hBtns}</div>
-              <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-m-btns">${this._renderTimePicker('time', preset.time).mBtns}</div>
-            </div>
-          </div>
-          <!-- 结束时间 — 可折叠 -->
-          <div style="margin-bottom:10px;border:var(--glass-border-subtle);border-radius:10px;overflow:hidden;">
-            <div class="time-toggle" id="time-toggle-end" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;font-size:14px;user-select:none;">
-              <span>🕐 结束时间</span>
-              <span style="color:var(--text-tertiary);font-size:12px;" id="time-label-end">${preset.timeEnd || '未设置'}</span>
-            </div>
-            <div class="time-picker-body" id="time-body-end" style="display:${preset.timeEnd ? 'block' : 'none'};padding:0 10px 8px;">
-              <div style="margin-bottom:3px;display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-h-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).hBtns}</div>
-              <div style="display:flex;gap:3px;flex-wrap:wrap;" id="sched-time-end-m-btns">${this._renderTimePicker('timeEnd', preset.timeEnd).mBtns}</div>
+            <span style="padding-bottom:10px;color:var(--text-tertiary);">—</span>
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">结束时间</label>
+              <input id="sched-time-end" class="input" type="time" value="${preset.timeEnd || ''}">
             </div>
           </div>
-          <input type="hidden" id="sched-time-h" value="${preset.time ? preset.time.split(':')[0] : ''}">
-          <input type="hidden" id="sched-time-m" value="${preset.time ? preset.time.split(':')[1] : ''}">
-          <input type="hidden" id="sched-time-end-h" value="${preset.timeEnd ? preset.timeEnd.split(':')[0] : ''}">
-          <input type="hidden" id="sched-time-end-m" value="${preset.timeEnd ? preset.timeEnd.split(':')[1] : ''}">
           <button class="btn btn-primary btn-block" id="btn-save-schedule">
             ${isEdit ? '更新日程' : '保存日程'}
           </button>
@@ -667,44 +636,6 @@ const SchedulePage = {
       });
     });
 
-    // 折叠切换
-    overlay.querySelectorAll('.time-toggle').forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        const body = toggle.nextElementSibling;
-        if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
-      });
-    });
-
-    // 时间芯片点击事件（再次点击取消选中）
-    overlay.querySelectorAll('.time-chip').forEach(chip => {
-      chip.addEventListener('click', (e) => {
-        e.preventDefault();
-        const pick = chip.dataset.pick;
-        const val = chip.dataset.val;
-        const prefix = pick.includes('End') ? 'timeEnd' : 'time';
-        const type = pick.endsWith('h') ? 'h' : 'm';
-        const hiddenId = 'sched-' + prefix + '-' + type;
-        const hidden = overlay.querySelector('#' + hiddenId);
-
-        // 如果已选中，取消
-        if (chip.classList.contains('active')) {
-          chip.classList.remove('active');
-          if (hidden) hidden.value = '';
-        } else {
-          overlay.querySelectorAll('[data-pick=\"' + pick + '\"]').forEach(b => b.classList.remove('active'));
-          chip.classList.add('active');
-          if (hidden) hidden.value = val;
-        }
-
-        // 更新折叠标签
-        const hVal = overlay.querySelector('#sched-' + prefix + '-h');
-        const mVal = overlay.querySelector('#sched-' + prefix + '-m');
-        const label = overlay.querySelector('#time-label-' + (prefix === 'time' ? 'start' : 'end'));
-        if (label && hVal && mVal) {
-          label.textContent = (hVal.value && mVal.value) ? hVal.value + ':' + mVal.value : '未设置';
-        }
-      });
-    });
 
     const closeModal = () => overlay.remove();
     overlay.querySelector('.modal-close').addEventListener('click', closeModal);
@@ -716,10 +647,8 @@ const SchedulePage = {
         const titleEl = overlay.querySelector('#sched-title');
         const descEl = overlay.querySelector('#sched-desc');
         const dateEl = overlay.querySelector('#sched-date');
-        const timeH = overlay.querySelector('#sched-time-h');
-        const timeM = overlay.querySelector('#sched-time-m');
-        const timeEndH = overlay.querySelector('#sched-time-end-h');
-        const timeEndM = overlay.querySelector('#sched-time-end-m');
+        const timeEl = overlay.querySelector('#sched-time');
+        const timeEndEl = overlay.querySelector('#sched-time-end');
 
         if (!titleEl || !dateEl) {
           console.error('保存失败：找不到表单元素');
@@ -730,8 +659,8 @@ const SchedulePage = {
         const title = titleEl.value.trim();
         const description = descEl ? descEl.value.trim() : '';
         const date = dateEl.value;
-        const time = (timeH && timeM && timeH.value && timeM.value) ? timeH.value + ':' + timeM.value : '';
-        const timeEnd = (timeEndH && timeEndM && timeEndH.value && timeEndM.value) ? timeEndH.value + ':' + timeEndM.value : '';
+        const time = timeEl ? timeEl.value : '';
+        const timeEnd = timeEndEl ? timeEndEl.value : '';
 
         if (!title) { alert('请输入日程标题'); return; }
         if (!date) { alert('请选择日期'); return; }
