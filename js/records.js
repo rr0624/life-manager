@@ -42,6 +42,7 @@ const RecordsPage = {
       <div id="diary-view" style="display:none;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <span style="font-size:var(--fs-heading);font-weight:var(--fw-semibold);">📖 日记本</span>
+          <button class="btn btn-sm btn-primary" id="btn-write-diary">✏️ 写日记</button>
         </div>
         <div id="diary-list"></div>
         <div id="diary-empty" class="empty-state" style="display:none;">
@@ -192,6 +193,10 @@ const RecordsPage = {
     // 文学卡片
     const litBtn = document.getElementById('btn-lit-card');
     if (litBtn) litBtn.addEventListener('click', () => this._generateLitCard());
+
+    // 写日记
+    const writeDiaryBtn = document.getElementById('btn-write-diary');
+    if (writeDiaryBtn) writeDiaryBtn.addEventListener('click', () => this._writeDiaryManually());
 
     // 自动调整输入框高度
     input.addEventListener('input', () => {

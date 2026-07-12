@@ -62,10 +62,7 @@ const Nav = {
     const fab = document.getElementById('fab-btn');
     if (!fab) return;
 
-    const config = {
-      schedule: { icon: '+', label: '新建日程' },
-      goals: { icon: '+', label: '新建目标' }
-    };
+    const config = {};
 
     const c = config[tabKey];
     if (!c) { fab.style.display = 'none'; return; }
