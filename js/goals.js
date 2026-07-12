@@ -204,29 +204,23 @@ const GoalsPage = {
         });
       }
 
-      // 创建勾选的计划卡片为日程
+      // 创建勾选的计划卡片为目标分支
       if (!isEdit && planCards.length > 0) {
         const selectedPlans = planCards.filter(p => p.selected);
-        const today = Utils.formatDate();
-        for (const plan of selectedPlans) {
-          await DB.add('schedules', {
-            title: plan.title,
-            description: plan.desc,
-            date: today,
-            time: '',
-            completed: false,
-            sourceRecordId: null,
-            createdAt: new Date().toISOString()
-          });
+        if (selectedPlans.length > 0 && goalId) {
+          const goal = await DB.getById('goals', goalId);
+          if (goal) {
+            if (!goal.branches) goal.branches = [];
+            for (const plan of selectedPlans) {
+              goal.branches.push({ title: plan.title, content: plan.desc, done: false, createdAt: new Date().toISOString() });
+            }
+            await DB.put('goals', goal);
+          }
         }
       }
 
       this._closeModal();
       await this._loadGoals();
-      // 如果创建了新日程，刷新日程页
-      if (!isEdit && planCards.filter(p => p.selected).length > 0) {
-        try { await SchedulePage.refresh(); } catch (e) { /* 日程页可能未渲染 */ }
-      }
     });
 
     // 删除

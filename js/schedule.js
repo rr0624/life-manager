@@ -129,22 +129,20 @@ const SchedulePage = {
       <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
         <button class="btn btn-sm btn-ghost quick-jump" data-jump="today" style="${isToday ? 'background:var(--primary-light);color:var(--primary);font-weight:var(--fw-semibold);' : ''}">今天</button>
         <button class="btn btn-sm btn-ghost quick-jump" data-jump="tomorrow">明天</button>
-        <button class="btn btn-sm btn-ghost quick-jump" data-jump="this-week">本周</button>
       </div>
 
-      <!-- 全天日程 -->
-      ${allDaySchedules.length > 0 ? `
-        <div style="margin-bottom:16px;">
-          <div class="section-title">全天</div>
-          ${allDaySchedules.map(s => this._renderScheduleItem(s)).join('')}
-        </div>
-      ` : ''}
-
-      <!-- 时间线卡片 -->
+      <!-- 时间线 -->
       <div class="timeline-card">
         <div class="timeline-header" style="margin:-20px -20px 16px -20px;padding:16px 20px;">
           <div class="timeline-header-title">🕐 时间线</div>
         </div>
+        <!-- 全天日程并入时间线顶部 -->
+        ${allDaySchedules.length > 0 ? `
+          <div style="margin-bottom:12px;">
+            <div class="section-title" style="margin-bottom:6px;">全天</div>
+            ${allDaySchedules.map(s => this._renderScheduleItem(s)).join('')}
+          </div>
+        ` : ''}
         <div class="time-slots">
           ${Object.entries(hourMap).map(([hour, items]) => {
             const isCurrentHour = parseInt(hour) === currentHour && isToday;
@@ -192,18 +190,8 @@ const SchedulePage = {
     container.querySelectorAll('.quick-jump').forEach(btn => {
       btn.addEventListener('click', () => {
         const today = new Date();
-        switch (btn.dataset.jump) {
-          case 'today': this.currentDate = today; break;
-          case 'tomorrow': this.currentDate = new Date(today.getTime() + 86400000); break;
-          case 'this-week':
-            this.currentDate = today;
-            this.currentView = 'list';
-            document.querySelectorAll('#view-toggle button').forEach(b => {
-              b.classList.toggle('active', b.dataset.view === 'list');
-            });
-            this._switchView();
-            return;
-        }
+        if (btn.dataset.jump === 'today') this.currentDate = today;
+        else if (btn.dataset.jump === 'tomorrow') this.currentDate = new Date(today.getTime() + 86400000);
         this._renderTimeline();
       });
     });
@@ -231,38 +219,22 @@ const SchedulePage = {
     // 隐藏其他视图的空状态
     if (emptyEl) emptyEl.style.display = 'none';
 
-    const today = Utils.formatDate(this.currentDate);
-    const endDate = Utils.formatDate(new Date(this.currentDate.getTime() + 7 * 86400000));
-    const allSchedules = await DB.getSchedulesByDateRange(today, endDate);
+    const date = Utils.formatDate(this.currentDate);
+    const schedules = await DB.getSchedulesByDate(date);
 
-    const grouped = {};
-    allSchedules.forEach(s => {
-      if (!grouped[s.date]) grouped[s.date] = [];
-      grouped[s.date].push(s);
-    });
-
-    const sortedDates = Object.keys(grouped).sort();
-
-    if (sortedDates.length === 0) {
-      container.innerHTML = '';
-      // 不在这里显示空状态，统一处理
+    if (schedules.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>当天暂无日程</p></div>';
       return;
     }
 
-    container.innerHTML = sortedDates.map(date => {
-      const items = grouped[date];
-      items.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'));
+    schedules.sort((a, b) => (a.time || '23:59').localeCompare(b.time || '23:59'));
+    const isToday = date === Utils.formatDate();
+    const isTomorrow = date === Utils.formatDate(new Date(Date.now() + 86400000));
 
-      let label = date;
-      const tomorrowDate = Utils.formatDate(new Date(Date.now() + 86400000));
-      if (date === today) label = '📌 今天';
-      else if (date === tomorrowDate) label = '📅 明天';
-
-      return `
-        <div class="section-title">${label}</div>
-        ${items.map(s => this._renderScheduleItem(s)).join('')}
-      `;
-    }).join('');
+    container.innerHTML = `
+      <div class="section-title">${isToday ? '📌 今天' : isTomorrow ? '📅 明天' : date}</div>
+      ${schedules.map(s => this._renderScheduleItem(s)).join('')}
+    `;
 
     this._bindScheduleItemEvents(container);
   },
@@ -603,7 +575,11 @@ const SchedulePage = {
           <div style="display:flex;gap:12px;">
             <div class="form-group" style="flex:1;">
               <label class="form-label">日期</label>
-              <input id="sched-date" class="input" type="date" value="${preset.date || Utils.formatDate(this.currentDate)}">
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input id="sched-date" class="input" type="date" value="${preset.date || Utils.formatDate(this.currentDate)}" style="flex:1;">
+                <button class="btn btn-sm btn-ghost quick-date-btn" data-date="${Utils.formatDate()}">今天</button>
+                <button class="btn btn-sm btn-ghost quick-date-btn" data-date="${Utils.formatDate(new Date(Date.now()+86400000))}">明天</button>
+              </div>
             </div>
           </div>
           <!-- 开始时间 — 可折叠 -->
@@ -639,6 +615,13 @@ const SchedulePage = {
       </div>`;
 
     document.body.appendChild(overlay);
+
+    // 快速日期按钮
+    overlay.querySelectorAll('.quick-date-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        overlay.querySelector('#sched-date').value = btn.dataset.date;
+      });
+    });
 
     // 折叠切换
     overlay.querySelectorAll('.time-toggle').forEach(toggle => {
