@@ -64,8 +64,7 @@ const Nav = {
 
     const config = {
       schedule: { icon: '+', label: '新建日程' },
-      goals: { icon: '+', label: '新建目标' },
-      records: { icon: '✏️', label: '写记录' }
+      goals: { icon: '+', label: '新建目标' }
     };
 
     const c = config[tabKey];

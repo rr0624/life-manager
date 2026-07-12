@@ -42,12 +42,11 @@ const RecordsPage = {
       <div id="diary-view" style="display:none;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <span style="font-size:var(--fs-heading);font-weight:var(--fw-semibold);">📖 日记本</span>
-          <button class="btn btn-sm btn-primary" id="btn-write-diary">✏️ 写日记</button>
         </div>
         <div id="diary-list"></div>
         <div id="diary-empty" class="empty-state" style="display:none;">
           <div class="empty-icon">📖</div>
-          <p>还没有日记<br>点击右上角 ✏️ 写一篇吧</p>
+          <p>还没有日记<br>在对话中和小叶子聊天，保存为日记</p>
         </div>
       </div>
 
@@ -67,6 +66,9 @@ const RecordsPage = {
           </button>
           <button class="btn btn-primary btn-sm" id="btn-gen-schedule" style="flex:1;">
             📅 生成日程
+          </button>
+          <button class="btn btn-sm" id="btn-lit-card" style="flex:0 0 auto;padding:10px 14px;" title="生成文学卡片">
+            📜
           </button>
         </div>
         <div id="ai-status" style="text-align:center;margin-top:4px;min-height:18px;font-size:11px;color:var(--text-tertiary);"></div>
@@ -187,9 +189,9 @@ const RecordsPage = {
     // 生成日程
     if (genScheduleBtn) genScheduleBtn.addEventListener('click', () => this._generateFromLast());
 
-    // 写日记（日记视图中的按钮）
-    const writeDiaryBtn = document.getElementById('btn-write-diary');
-    if (writeDiaryBtn) writeDiaryBtn.addEventListener('click', () => this._writeDiaryManually());
+    // 文学卡片
+    const litBtn = document.getElementById('btn-lit-card');
+    if (litBtn) litBtn.addEventListener('click', () => this._generateLitCard());
 
     // 自动调整输入框高度
     input.addEventListener('input', () => {
