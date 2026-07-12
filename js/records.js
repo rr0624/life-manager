@@ -216,10 +216,10 @@ const RecordsPage = {
     const bubbleId = 'ai-streaming-' + Date.now();
     const bubbleHtml = `
       <div class="chat-bubble chat-bubble-ai" id="${bubbleId}">
-        <div class="chat-avatar chat-avatar-ai">${aiAvatar ? `<img src="${aiAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '🌿'}</div>
+        <div class="chat-avatar chat-avatar-ai">${aiAvatar ? `<img src="${aiAvatar}" class="avatar-img">` : '🌿'}</div>
         <div>
           <div class="chat-bubble-text" id="${bubbleId}-text"></div>
-          <div class="chat-bubble-time" id="${bubbleId}-time">正在输入...</div>
+          <div class="chat-bubble-time" id="${bubbleId}-time"><span class="loading-dots"><span></span><span></span><span></span></span></div>
         </div>
       </div>`;
     msgContainer.insertAdjacentHTML('beforeend', bubbleHtml);
@@ -383,7 +383,8 @@ const RecordsPage = {
     listEl.querySelectorAll('.btn-del-diary').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (!confirm('确定删除这篇日记吗？')) return;
+        const ok = await Utils.showConfirm('删除日记', '确定删除这篇日记吗？此操作不可撤销。', { danger: true });
+        if (!ok) return;
         await DB.delete('records', parseInt(btn.dataset.id));
         this._showToast('日记已删除');
         this._loadDiaryList();
@@ -475,12 +476,12 @@ const RecordsPage = {
               <div class="chat-bubble-text">${Utils.escapeHtml(msg.content)}</div>
               <div class="chat-bubble-time">${Utils.formatFriendly(msg.time)}</div>
             </div>
-            <div class="chat-avatar chat-avatar-user" data-avatar="user" title="点击更换头像">${userAvatar ? `<img src="${userAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '😊'}</div>
+            <div class="chat-avatar chat-avatar-user" data-avatar="user" title="点击更换头像">${userAvatar ? `<img src="${userAvatar}" class="avatar-img">` : '😊'}</div>
           </div>`;
       } else {
         html += `
           <div class="chat-bubble chat-bubble-ai">
-            <div class="chat-avatar chat-avatar-ai" data-avatar="ai" title="点击更换头像">${aiAvatar ? `<img src="${aiAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '🌿'}</div>
+            <div class="chat-avatar chat-avatar-ai" data-avatar="ai" title="点击更换头像">${aiAvatar ? `<img src="${aiAvatar}" class="avatar-img">` : '🌿'}</div>
             <div>
               <div class="chat-bubble-text">${msg.content.replace(/\n/g, '<br>')}</div>
               <div class="chat-bubble-time">${Utils.formatFriendly(msg.time)}</div>

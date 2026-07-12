@@ -112,21 +112,13 @@ const GoalsPage = {
       planArea.style.display = 'block';
       if (planHint) planHint.style.display = 'none';
       planCardsEl.innerHTML = planCards.map(p => `
-        <div class="plan-card ${p.selected ? 'selected' : ''}" data-plan-id="${p.id}" style="
-          display:flex;align-items:center;gap:10px;padding:10px 14px;
-          border-radius:var(--radius-sm);cursor:pointer;
-          border:2px solid ${p.selected ? 'var(--cat-learning)' : 'rgba(0,0,0,0.06)'};
-          background:${p.selected ? 'var(--cat-learning-bg)' : 'var(--bg-card)'};
-          transition:all 0.15s;
-        ">
-          <div style="font-size:22px;flex-shrink:0;">${p.icon}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-weight:600;font-size:14px;color:var(--text-primary);">${Utils.escapeHtml(p.title)}</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${Utils.escapeHtml(p.desc)}</div>
+        <div class="plan-card ${p.selected ? 'selected' : ''}" data-plan-id="${p.id}">
+          <div class="plan-card-icon">${p.icon}</div>
+          <div class="plan-card-body">
+            <div class="plan-card-title">${Utils.escapeHtml(p.title)}</div>
+            <div class="plan-card-desc">${Utils.escapeHtml(p.desc)}</div>
           </div>
-          <div style="font-size:18px;flex-shrink:0;color:${p.selected ? 'var(--cat-learning)' : 'var(--text-tertiary)'};">
-            ${p.selected ? '✅' : '⬜'}
-          </div>
+          <div class="plan-card-check">${p.selected ? '✅' : '⬜'}</div>
         </div>
       `).join('');
 
@@ -226,7 +218,8 @@ const GoalsPage = {
     // 删除
     if (isEdit) {
       modal.querySelector('#btn-delete-goal').addEventListener('click', async () => {
-        if (!confirm('确定删除该目标吗？')) return;
+        const ok = await Utils.showConfirm('删除目标', '确定删除该目标及其所有子计划吗？此操作不可撤销。', { danger: true });
+        if (!ok) return;
         await DB.delete('goals', goal.id);
         this._closeModal();
         await this._loadGoals();
@@ -265,14 +258,14 @@ const GoalsPage = {
       const cat = Utils.getCategory(catId);
 
       return `
-        <div class="goal-category-section" style="margin-bottom:16px;">
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 4px;">
+        <div class="goal-category-section">
+          <div class="goal-category-header">
             <span style="font-size:20px;">${cat.icon}</span>
-            <span style="font-weight:600;font-size:16px;color:var(--text-primary);">${cat.name}</span>
-            <span style="font-size:12px;color:var(--text-tertiary);">· ${catGoals.length} 项目标</span>
+            <span class="goal-category-name">${cat.name}</span>
+            <span class="goal-category-count">· ${catGoals.length} 项目标</span>
           </div>
           ${catGoals.length === 0
-            ? `<div class="card" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:13px;">
+            ? `<div class="card text-center" style="padding:24px;color:var(--text-tertiary);font-size:13px;">
                  暂无目标，点击右下角 + 创建
                </div>`
             : catGoals.map(g => this._renderGoalCard(g)).join('')
@@ -542,7 +535,7 @@ const GoalsPage = {
     // Note: _expanded state is tracked via DOM, not persisted
 
     return `
-      <div class="card goal-card" data-id="${goal.id}" style="cursor:pointer;overflow:visible;">
+      <div class="card goal-card" data-id="${goal.id}" data-category="${Utils.escapeHtml(goal.category)}">
         <div class="goal-card-body" data-goal-id="${goal.id}">
           <div class="card-header">
             <div class="card-title">${Utils.escapeHtml(goal.title)}</div>

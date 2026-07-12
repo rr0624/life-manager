@@ -115,32 +115,32 @@ const SchedulePage = {
 
     container.innerHTML = `
       <!-- 日期导航 -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <div class="flex-middle flex-gap-8 mb-16">
         <button class="btn btn-sm btn-ghost" id="btn-prev-day" title="前一天">◀ 前一天</button>
-        <div style="flex:1;text-align:center;">
-          <div style="font-size:var(--fs-heading);font-weight:var(--fw-semibold);color:var(--text-primary);">
+        <div class="timeline-date-nav-center">
+          <div class="timeline-date-label">
             ${isToday ? '📌 今天' : today}
           </div>
-          <div style="font-size:var(--fs-caption);color:var(--text-tertiary);">${weekday}</div>
+          <div class="timeline-weekday-label">${weekday}</div>
         </div>
         <button class="btn btn-sm btn-ghost" id="btn-next-day" title="后一天">后一天 ▶</button>
       </div>
 
       <!-- 快捷跳转 -->
-      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="flex flex-wrap flex-gap-6 mb-12">
         <button class="btn btn-sm btn-ghost quick-jump" data-jump="today" style="${isToday ? 'background:var(--primary-light);color:var(--primary);font-weight:var(--fw-semibold);' : ''}">今天</button>
         <button class="btn btn-sm btn-ghost quick-jump" data-jump="tomorrow">明天</button>
       </div>
 
       <!-- 时间线 -->
       <div class="timeline-card">
-        <div class="timeline-header" style="margin:-20px -20px 16px -20px;padding:16px 20px;">
+        <div class="timeline-header timeline-section">
           <div class="timeline-header-title">🕐 时间线</div>
         </div>
         <!-- 全天日程并入时间线顶部 -->
         ${allDaySchedules.length > 0 ? `
-          <div style="margin-bottom:12px;">
-            <div class="section-title" style="margin-bottom:6px;">全天</div>
+          <div class="timeline-all-day">
+            <div class="section-title">全天</div>
             ${allDaySchedules.map(s => this._renderScheduleItem(s)).join('')}
           </div>
         ` : ''}
@@ -148,22 +148,21 @@ const SchedulePage = {
           ${Object.entries(hourMap).map(([hour, items]) => {
             const isCurrentHour = parseInt(hour) === currentHour && isToday;
             return `
-            <div class="time-slot ${items.length > 0 ? 'has-event' : ''}"
-                 data-hour="${hour}" data-date="${today}"
-                 style="${isCurrentHour ? 'background:var(--primary-light);border-radius:var(--radius-sm);' : ''}">
+            <div class="time-slot ${items.length > 0 ? 'has-event' : ''} ${isCurrentHour ? 'active-hour' : ''}"
+                 data-hour="${hour}" data-date="${today}">
               <span class="time-label">${String(hour).padStart(2, '0')}:00</span>
-              <div style="flex:1;">
+              <div class="flex-1">
                 ${items.length === 0
-                  ? `<span style="color:var(--text-tertiary);font-size:var(--fs-caption);">—</span>`
+                  ? `<span class="text-xs text-tertiary-color">—</span>`
                   : items.map(s => `
-                    <div class="schedule-item" data-id="${s.id}" style="margin-bottom:3px;padding:8px 10px;box-shadow:none;">
+                    <div class="schedule-item timeline-schedule-item" data-id="${s.id}">
                       <button class="schedule-check ${s.completed ? 'done' : ''}" data-toggle="${s.id}">
                         ${s.completed ? '✓' : ''}
                       </button>
-                      <div style="flex:1;min-width:0;">
-                        <div style="font-size:var(--fs-small);font-weight:var(--fw-medium);${s.completed ? 'text-decoration:line-through;opacity:0.5;' : ''}">${Utils.escapeHtml(s.title)}</div>
+                      <div class="flex-1">
+                        <div class="timeline-schedule-title${s.completed ? ' completed' : ''}">${Utils.escapeHtml(s.title)}</div>
                       </div>
-                      <span style="font-size:var(--fs-caption);color:var(--text-tertiary);margin-right:4px;">${s.time ? (s.timeEnd ? s.time + '-' + s.timeEnd : s.time) : ''}</span>
+                      <span class="timeline-schedule-time">${s.time ? (s.timeEnd ? s.time + '-' + s.timeEnd : s.time) : ''}</span>
                       <button class="btn-icon btn-delete-schedule" data-delete="${s.id}" aria-label="删除日程" title="删除" style="font-size:13px;">🗑️</button>
                     </div>
                   `).join('')
@@ -406,10 +405,11 @@ const SchedulePage = {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const id = parseInt(btn.dataset.delete);
-        if (!confirm('确定删除这条日程吗？')) return;
+        const ok = await Utils.showConfirm('删除日程', '确定删除这条日程吗？此操作不可撤销。', { danger: true });
+        if (!ok) return;
         await DB.delete('schedules', id);
         await this.refresh();
-        if (typeof App !== 'undefined') App._showToast('日程已删除 🗑️');
+        if (typeof App !== 'undefined') App._showToast('日程已删除', { type: 'success' });
       });
     });
   },

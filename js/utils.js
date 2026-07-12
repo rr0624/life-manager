@@ -163,5 +163,34 @@ const Utils = {
   // 格式化日期范围显示
   formatDateRange(start, end) {
     return `${start} → ${end}`;
+  },
+
+  // 自定义确认弹窗 — 替代原生 confirm()
+  showConfirm(title, message, { confirmText = '确定', cancelText = '取消', danger = false } = {}) {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'confirm-overlay';
+      overlay.innerHTML = `
+        <div class="confirm-dialog">
+          <div class="confirm-dialog-title">${title}</div>
+          <div class="confirm-dialog-message">${message}</div>
+          <div class="confirm-dialog-actions">
+            <button class="btn btn-ghost btn-sm btn-confirm-cancel">${cancelText}</button>
+            <button class="btn btn-sm ${danger ? 'btn-danger' : 'btn-primary'} btn-confirm-ok">${confirmText}</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const cleanup = (result) => {
+        overlay.remove();
+        resolve(result);
+      };
+      overlay.querySelector('.btn-confirm-cancel').addEventListener('click', () => cleanup(false));
+      overlay.querySelector('.btn-confirm-ok').addEventListener('click', () => cleanup(true));
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) cleanup(false);
+      });
+    });
   }
 };

@@ -289,7 +289,8 @@ const App = {
       try {
         const text = await file.text();
         const data = JSON.parse(text);
-        if (!confirm('导入数据将覆盖当前所有数据，确定继续吗？')) return;
+        const ok = await Utils.showConfirm('导入数据', '导入数据将覆盖当前所有数据，确定继续吗？', { danger: true, confirmText: '导入' });
+        if (!ok) return;
         await DB.importAll(data);
         this._showToast('数据已导入 ✓ 页面即将刷新...');
         setTimeout(() => location.reload(), 1500);
@@ -358,15 +359,17 @@ const App = {
 
 
   // ===== Toast =====
-  _showToast(msg) {
+  _showToast(msg, { type = 'info', duration = 2000 } = {}) {
     const toast = document.getElementById('toast');
     if (!toast) return;
-    toast.textContent = msg;
-    toast.classList.add('show');
+    const icons = { success: '✅ ', error: '❌ ', warning: '⚠️ ', info: '' };
+    const prefix = icons[type] || '';
+    toast.textContent = prefix + msg;
+    toast.className = 'toast toast-' + type + ' show';
     clearTimeout(toast._timer);
     toast._timer = setTimeout(() => {
       toast.classList.remove('show');
-    }, 2000);
+    }, duration);
   }
 };
 
