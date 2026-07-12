@@ -42,12 +42,11 @@ const RecordsPage = {
       <div id="diary-view" style="display:none;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <span style="font-size:var(--fs-heading);font-weight:var(--fw-semibold);">📖 日记本</span>
-          <button class="btn btn-sm btn-primary" id="btn-write-diary">✍️ 写日记</button>
         </div>
         <div id="diary-list"></div>
         <div id="diary-empty" class="empty-state" style="display:none;">
           <div class="empty-icon">📖</div>
-          <p>还没有日记<br>在对话中保存，或点击上方「写日记」开始</p>
+          <p>还没有日记<br>在对话中和小叶子聊天，保存为日记</p>
         </div>
       </div>
 
@@ -193,10 +192,6 @@ const RecordsPage = {
     // 文学卡片
     const litBtn = document.getElementById('btn-lit-card');
     if (litBtn) litBtn.addEventListener('click', () => this._generateLitCard());
-
-    // 手动写日记
-    const writeBtn = document.getElementById('btn-write-diary');
-    if (writeBtn) writeBtn.addEventListener('click', () => this._writeDiaryManually());
 
     // 自动调整输入框高度
     input.addEventListener('input', () => {
@@ -525,6 +520,10 @@ const RecordsPage = {
     container.querySelectorAll('.chat-avatar').forEach(av => {
       av.addEventListener('click', () => this._uploadAvatar(av.dataset.avatar));
     });
+
+    // 有消息时显示操作按钮
+    const actions = document.getElementById('chat-actions');
+    if (actions) actions.style.display = this._messages.length > 0 ? 'flex' : 'none';
 
     requestAnimationFrame(() => {
       container.scrollTop = container.scrollHeight;

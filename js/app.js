@@ -41,23 +41,7 @@ const App = {
       }
     }
 
-    // 8. 键盘弹出时只移动输入框，其余全部固定
-    if (window.visualViewport) {
-      const vv = window.visualViewport;
-      const h = window.innerHeight;
-      vv.addEventListener('resize', () => {
-        const inputArea = document.querySelector('#chat-input-area');
-        if (!inputArea) return;
-        const kh = h - vv.height;
-        if (kh > 60) {
-          inputArea.style.transform = `translateY(-${kh}px)`;
-        } else {
-          inputArea.style.transform = '';
-        }
-      });
-    }
-
-    // 9. 处理 PWA 安装提示
+    // 8. 处理 PWA 安装提示
     this._handleInstallPrompt();
 
     console.log('应用初始化完成 ✓');

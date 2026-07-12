@@ -1614,10 +1614,8 @@ html, body {
 /* 底部输入区 */
 #page-records .chat-input-area {
   flex-shrink: 0;
-  padding: 6px var(--content-padding) 4px;
+  padding: 6px var(--content-padding) 6px;
   background: var(--bg-primary);
-  position: relative;
-  z-index: 10;
 }
 #page-records .chat-input-row {
   display: flex;
