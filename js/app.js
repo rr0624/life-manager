@@ -41,7 +41,10 @@ const App = {
       }
     }
 
-    // 8. 处理 PWA 安装提示
+    // 8. 键盘适配：只移动输入区，页面其余不动
+    this._adaptKeyboard();
+
+    // 9. 处理 PWA 安装提示
     this._handleInstallPrompt();
 
     console.log('应用初始化完成 ✓');
@@ -356,6 +359,32 @@ const App = {
     });
   },
 
+
+  // ===== 键盘适配：只移动输入框，页面其余不动 =====
+  _adaptKeyboard() {
+    if (!window.visualViewport) return;
+    const vv = window.visualViewport;
+    const initialHeight = window.innerHeight;
+
+    vv.addEventListener('resize', () => {
+      const inputArea = document.querySelector('#chat-input-area');
+      const pageContainer = document.querySelector('.page-container');
+      if (!inputArea) return;
+
+      const keyboardHeight = initialHeight - vv.height;
+      if (keyboardHeight > 50) {
+        // 键盘弹出：输入区上移
+        inputArea.style.transform = `translateY(-${keyboardHeight}px)`;
+        inputArea.style.transition = 'transform 0.15s ease-out';
+        // 消息区保持原位不动
+        if (pageContainer) pageContainer.style.overflow = 'hidden';
+      } else {
+        // 键盘收起：恢复
+        inputArea.style.transform = '';
+        if (pageContainer) pageContainer.style.overflow = '';
+      }
+    });
+  },
 
   // ===== Toast =====
   _showToast(msg) {
