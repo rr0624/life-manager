@@ -8,27 +8,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: cimg/android:2025.07
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-34 build-tools;34.0.0 platforms;android-35 build-tools;35.0.0'
-
-      - name: Verify SDK
+      - name: Verify environment
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           echo "JAVA_HOME=$JAVA_HOME"
-          ls $ANDROID_HOME/platforms/ 2>/dev/null || echo "no platforms"
-          ls $ANDROID_HOME/build-tools/ 2>/dev/null || echo "no build-tools"
+          java -version
+          ls $ANDROID_HOME/platforms/
+          ls $ANDROID_HOME/build-tools/
 
       - name: Install npm deps
         run: npm install
