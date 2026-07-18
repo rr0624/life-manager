@@ -1,12 +1,24 @@
 // 日常记录模块 — 纯 DeepSeek 对话 + 日记查看
 
 const RecordsPage = {
-  _messages: [],       // 当前对话消息
-  _viewMode: 'chat',   // 'chat' | 'diary'
+  _messages: [],          // 当前对话消息
+  _viewMode: 'chat',      // 'chat' | 'diary'
+  _savedScrollTop: 0,     // 离开标签页时保存的滚动位置
+
+  // 持久化消息到 localStorage
+  _persistMessages() {
+    DB.saveChatMessages(this._messages);
+  },
 
   async render() {
     const container = document.getElementById('page-records');
     if (!container) return;
+
+    // 恢复历史消息（刷新后从 localStorage 加载）
+    if (this._messages.length === 0) {
+      const saved = DB.loadChatMessages();
+      if (saved.length > 0) this._messages = saved;
+    }
 
     const existingMessages = this._messages;
 
@@ -23,19 +35,18 @@ const RecordsPage = {
 
       <!-- 对话视图 -->
       <div id="chat-view">
-        <div id="chat-messages" class="chat-messages">
-          <div class="chat-welcome">
-            <div class="welcome-avatar">🌿</div>
-            <div class="welcome-title">你好，我是小叶子</div>
-            <div class="welcome-sub">你的温暖生活助手<br>可以倾听、记录、陪伴你的每一天</div>
-            <div class="welcome-suggestions" id="welcome-suggestions">
-              <button class="chat-chip" data-msg="今天工作有些累，但完成了重要的项目">😮‍💨 今天工作有些累...</button>
-              <button class="chat-chip" data-msg="去健身房练了1小时，感觉状态不错">🏋️ 去健身了...</button>
-              <button class="chat-chip" data-msg="和朋友聚餐聊天，聊了很多有意思的事">😊 和朋友聚餐...</button>
-              <button class="chat-chip" data-msg="推荐几本值得读的书给我吧">📚 推荐几本书...</button>
-            </div>
+        <div class="chat-welcome" id="chat-welcome">
+          <div class="welcome-avatar">🌿</div>
+          <div class="welcome-title">你好，我是小叶子</div>
+          <div class="welcome-sub">你的温暖生活助手<br>可以倾听、记录、陪伴你的每一天</div>
+          <div class="welcome-suggestions" id="welcome-suggestions">
+            <button class="chat-chip" data-msg="今天工作有些累，但完成了重要的项目">😮‍💨 今天工作有些累...</button>
+            <button class="chat-chip" data-msg="去健身房练了1小时，感觉状态不错">🏋️ 去健身了...</button>
+            <button class="chat-chip" data-msg="和朋友聚餐聊天，聊了很多有意思的事">😊 和朋友聚餐...</button>
+            <button class="chat-chip" data-msg="推荐几本值得读的书给我吧">📚 推荐几本书...</button>
           </div>
         </div>
+        <div id="chat-messages" class="chat-messages"></div>
       </div>
 
       <!-- 日记视图 -->
@@ -72,7 +83,7 @@ const RecordsPage = {
             📜
           </button>
         </div>
-        <div id="ai-status" style="text-align:center;margin-top:4px;min-height:18px;font-size:11px;color:var(--text-tertiary);"></div>
+        <div id="ai-status" style="text-align:center;margin-top:2px;min-height:0;font-size:11px;color:var(--text-tertiary);"></div>
       </div>
     `;
 
@@ -86,7 +97,23 @@ const RecordsPage = {
     }
   },
 
-  async refresh() {},
+  // Tab 切回时强制重排 + 恢复滚动位置
+  async refresh() {
+    if (this._viewMode !== 'chat') return;
+
+    const chatView = document.getElementById('chat-view');
+    const msgs = document.getElementById('chat-messages');
+
+    // 强制重排：读取 offsetWidth 触发浏览器重新计算布局
+    if (chatView) void chatView.offsetWidth;
+
+    // 恢复滚动位置
+    if (msgs) {
+      requestAnimationFrame(() => {
+        msgs.scrollTop = this._savedScrollTop || msgs.scrollHeight;
+      });
+    }
+  },
 
   focusInput() {
     if (this._viewMode !== 'chat') {
@@ -137,6 +164,7 @@ const RecordsPage = {
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
         this._messages = [];
+        this._persistMessages();
         AI.clearChat();
         this._renderMessages();
         document.getElementById('chat-actions').style.display = 'none';
@@ -150,6 +178,12 @@ const RecordsPage = {
     const saveBtn = document.getElementById('btn-save-diary');
     const genScheduleBtn = document.getElementById('btn-gen-schedule');
     const actions = document.getElementById('chat-actions');
+
+    // 滚动聊天消息到底部
+    const scrollChatBottom = () => {
+      const msgs = document.getElementById('chat-messages');
+      if (msgs) { msgs.scrollTop = msgs.scrollHeight; }
+    };
 
     const sendMessage = () => {
       const content = input.value.trim();
@@ -203,11 +237,43 @@ const RecordsPage = {
       input.style.height = 'auto';
       input.style.height = Math.min(input.scrollHeight, 120) + 'px';
     });
+
+    // 输入框聚焦时滚动消息到底部 + 键盘避让由 app.js 全局处理
+    input.addEventListener('focus', () => {
+      setTimeout(scrollChatBottom, 300);
+    });
+
+    // 输入框失焦时键盘收起，恢复导航
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+          const bottomNav = document.querySelector('.bottom-nav');
+          if (bottomNav) bottomNav.classList.remove('nav-hidden');
+        }
+      }, 150);
+    });
+
+    // 保存滚动位置（tab 切回时恢复）
+    const msgsEl = document.getElementById('chat-messages');
+    if (msgsEl) {
+      msgsEl.addEventListener('scroll', () => {
+        this._savedScrollTop = msgsEl.scrollTop;
+      }, { passive: true });
+    }
+
+    // 页面隐藏时保存滚动位置（WebView 切后台/切 tab）
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        const m = document.getElementById('chat-messages');
+        if (m) this._savedScrollTop = m.scrollTop;
+      }
+    });
   },
 
   // ===== 添加用户消息 + AI 流式回复 =====
   async _addUserMessage(content) {
     this._messages.push({ role: 'user', content, time: new Date().toISOString() });
+    this._persistMessages();
     this._renderMessages();
 
     // 创建空的 AI 回复气泡
@@ -229,6 +295,9 @@ const RecordsPage = {
       </div>`;
     msgContainer.insertAdjacentHTML('beforeend', bubbleHtml);
     container.scrollTop = container.scrollHeight;
+
+    // 等待 DOM 渲染完成（WebView 内重排可能延迟）
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     const textEl = document.getElementById(bubbleId + '-text');
     const timeEl = document.getElementById(bubbleId + '-time');
@@ -253,6 +322,7 @@ const RecordsPage = {
           time: new Date().toISOString()
         };
         RecordsPage._messages.push(msg);
+        RecordsPage._persistMessages();
       },
       onError(err) {
         textEl.textContent = '❌ ' + (err.message || '网络请求失败，请检查 API 配置');
@@ -262,6 +332,7 @@ const RecordsPage = {
           content: textEl.textContent,
           time: new Date().toISOString()
         });
+        RecordsPage._persistMessages();
       }
     });
   },
@@ -362,18 +433,20 @@ const RecordsPage = {
     emptyEl.style.display = 'none';
     listEl.innerHTML = records.map((r) => {
       const messages = r.messages || [];
-      // 提取纯文本摘要
+      // 提取纯文本摘要（取第一条有意义的内容）
       const allText = messages.map(m => m.content).join('\n');
       const firstLine = allText.split('\n')[0] || '';
-      const preview = Utils.truncate(firstLine, 50) || '空日记';
+      const preview = Utils.truncate(firstLine, 80) || '空日记';
 
       return `
       <div class="memo-item" data-id="${r.id}">
-        <div class="memo-content" style="flex:1;min-width:0;">
-          <div style="font-size:var(--fs-body);font-weight:var(--fw-medium);color:var(--text-primary);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${Utils.escapeHtml(preview)}</div>
-          <div style="font-size:var(--fs-caption);color:var(--text-tertiary);">${Utils.formatFriendly(r.createdAt)} · ${messages.length} 条消息</div>
+        <div class="memo-content">
+          <div class="memo-preview">${Utils.escapeHtml(preview)}</div>
         </div>
-        <button class="btn-icon btn-del-diary" data-id="${r.id}" title="删除" style="font-size:12px;flex-shrink:0;opacity:0.4;">🗑️</button>
+        <div class="memo-meta">
+          <span>${Utils.formatFriendly(r.createdAt)}</span>
+          <span class="memo-delete" data-id="${r.id}" title="删除">🗑️</span>
+        </div>
       </div>`;
     }).join('');
 
@@ -385,7 +458,7 @@ const RecordsPage = {
     });
 
     // 绑定删除
-    listEl.querySelectorAll('.btn-del-diary').forEach(btn => {
+    listEl.querySelectorAll('.memo-delete').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const ok = await Utils.showConfirm('删除日记', '确定删除这篇日记吗？此操作不可撤销。', { danger: true });
@@ -463,7 +536,7 @@ const RecordsPage = {
     const container = document.getElementById('chat-messages');
     if (!container) return;
 
-    const welcomeEl = container.querySelector('.chat-welcome');
+    const welcomeEl = document.getElementById('chat-welcome');
     if (welcomeEl) {
       welcomeEl.classList.toggle('hidden', this._messages.length > 0);
     }
@@ -716,18 +789,40 @@ const RecordsPage = {
       container.appendChild(cardEl);
     }
 
-    // 滚动到底部
+    // 滚动到底部 + 边界检测（卡片不超出可视区域）
     requestAnimationFrame(() => {
       container.scrollTop = container.scrollHeight;
+      // 二次确认：卡片全部可见
+      requestAnimationFrame(() => {
+        const cardRect = cardEl.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const cardBottom = cardRect.bottom;
+        const visibleBottom = containerRect.bottom;
+        if (cardBottom > visibleBottom + 10) {
+          // 卡片底部超出可视区 → 上滚使卡片顶部对齐容器顶部
+          container.scrollTop += (cardBottom - visibleBottom) + 8;
+        }
+      });
     });
 
     // 收藏
     cardEl.querySelector('.btn-lit-save').addEventListener('click', async () => {
-      const text = `${quoteData.quote}\n—— ${quoteData.book} · ${quoteData.author}`;
+      // 兼容两种来源：本地名句对象 {quote, book, author} / AI 返回原始字符串
+      const isObject = typeof quoteData === 'object' && quoteData.quote;
+      const saveContent = isObject
+        ? '📜 ' + quoteData.quote + '\n—— ' + (quoteData.book || '') + ' · ' + (quoteData.author || '')
+        : '📜 ' + String(quoteData || '');
+
       await DB.add('records', {
-        messages: [{ role: 'ai', content: '📜 ' + text, time: new Date().toISOString() }],
+        messages: [{ role: 'ai', content: saveContent, time: new Date().toISOString() }],
         createdAt: new Date().toISOString()
       });
+
+      // 同步加入 chat 消息列表并持久化
+      this._messages.push({ role: 'ai', content: saveContent, time: new Date().toISOString() });
+      this._persistMessages();
+      this._renderMessages();
+
       cardEl.remove();
       this._showToast('文学卡片已收藏到日记 📖');
     });

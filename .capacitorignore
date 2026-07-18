@@ -1,0 +1,11 @@
+node_modules
+android
+.git
+.gitignore
+package.json
+package-lock.json
+capacitor.config.json
+.capacitorignore
+CLAUDE.md
+docs
+dev-logs

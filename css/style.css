@@ -191,9 +191,12 @@
 /* ================================================================
    BASE
    ================================================================ */
-html, body {
-  height: 100%;
-  height: 100dvh;
+html {
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+body {
+  width: 100%; height: 100%;
   overflow: hidden;
   font-family: var(--font);
   font-size: var(--fs-body);
@@ -263,19 +266,18 @@ html, body {
    APP SHELL
    ================================================================ */
 #app {
+  height: 100dvh;
   max-width: var(--max-width);
   margin: 0 auto;
-  height: 100%;
-  height: 100dvh;
   display: flex;
   flex-direction: column;
-  position: relative;
   overflow: hidden;
+  /* dvh 随 Chrome 键盘自动缩放；JS visualViewport 兜底非 dvh 浏览器 */
 }
 
 /* ===== Header ===== */
 .app-header {
-  padding: 14px var(--content-padding) 10px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) var(--content-padding) 10px;
   text-align: center;
   flex-shrink: 0;
   z-index: var(--z-base);
@@ -858,10 +860,8 @@ input[type="date"].input {
    ================================================================ */
 .modal-overlay {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.20);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   z-index: var(--z-modal);
   display: flex;
   align-items: flex-end;
@@ -873,7 +873,7 @@ input[type="date"].input {
 .modal {
   width: 100%;
   max-width: var(--max-width);
-  max-height: 88vh;
+  max-height: 88dvh;
   overflow-y: auto;
   background: var(--glass-bg-strong);
   backdrop-filter: var(--glass-blur-heavy);
@@ -925,17 +925,15 @@ input[type="date"].input {
    ================================================================ */
 .drawer-overlay {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.20);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   z-index: var(--z-drawer);
   animation: fadeIn var(--duration-normal) var(--ease-out);
 }
 .drawer {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  width: min(380px, 85vw);
+  width: 85vw; max-width: 380px;
   background: var(--glass-bg-strong);
   backdrop-filter: var(--glass-blur-heavy);
   -webkit-backdrop-filter: var(--glass-blur-heavy);
@@ -1090,10 +1088,8 @@ input[type="date"].input {
    ================================================================ */
 .confirm-overlay {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.30);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   z-index: var(--z-modal);
   display: flex;
   align-items: center;
@@ -1160,10 +1156,8 @@ input[type="date"].input {
    ================================================================ */
 .branch-popup-overlay {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.20);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   z-index: var(--z-modal);
   display: flex;
   align-items: center;
@@ -1174,7 +1168,7 @@ input[type="date"].input {
 .branch-popup {
   width: 100%;
   max-width: 380px;
-  max-height: 70vh;
+  max-height: 70dvh;
   overflow-y: auto;
   background: var(--glass-bg-strong);
   backdrop-filter: var(--glass-blur-heavy);
@@ -1738,7 +1732,64 @@ input[type="date"].input {
   border-top: var(--glass-border-subtle);
 }
 
-/* ===== Memo 备忘录格式 ===== */
+/* ===== Diary 双列卡片网格 ===== */
+#diary-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+#diary-list .memo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 14px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border-subtle);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  min-height: 0;
+}
+#diary-list .memo-item:active {
+  transform: scale(0.96);
+  background: var(--glass-bg-subtle);
+}
+#diary-list .memo-content {
+  flex: 1;
+  min-width: 0;
+}
+#diary-list .memo-preview {
+  font-size: var(--fs-small);
+  color: var(--text-primary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+#diary-list .memo-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-caption);
+  color: var(--text-tertiary);
+}
+#diary-list .memo-delete {
+  font-size: 14px;
+  opacity: 0.3;
+  cursor: pointer;
+  padding: 2px;
+  transition: opacity 0.15s;
+}
+#diary-list .memo-delete:hover { opacity: 0.8; }
+
+/* ===== Memo 备忘录格式 (保留对话历史等地方使用) ===== */
 .memo-item {
   display: flex;
   align-items: center;
@@ -1775,6 +1826,7 @@ input[type="date"].input {
 }
 .lit-card-mini {
   max-width: 92%;
+  max-height: 60dvh; overflow-y: auto;
   margin: 0 auto;
   background: linear-gradient(135deg, #fdf6f0 0%, #faf3eb 30%, #fdf8f4 60%, #f9f2ec 100%);
   border: 1px solid rgba(180,150,120,0.25);
@@ -1858,8 +1910,9 @@ input[type="date"].input {
 }
 #page-records .chat-messages::-webkit-scrollbar { display: none; }
 
-/* 欢迎页 */
+/* 欢迎页 — 固定在聊天视图顶部，不随消息滚动 */
 #page-records .chat-welcome {
+  flex-shrink: 0;
   text-align: center;
   padding: 32px 8px 20px;
   animation: pageIn 0.5s var(--ease-out);
@@ -1977,8 +2030,10 @@ input[type="date"].input {
 /* 底部输入区 */
 #page-records .chat-input-area {
   flex-shrink: 0;
-  padding: 6px var(--content-padding) 6px;
+  padding: 0 var(--content-padding) 6px;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-primary);
+  transition: padding-bottom 0.15s ease-out;
 }
 #page-records .chat-input-row {
   display: flex;
@@ -2081,10 +2136,17 @@ input[type="date"].input {
   padding: 8px 12px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
   z-index: var(--z-nav);
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+/* 键盘弹出时底部导航移出屏幕 */
+.bottom-nav.nav-hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
 }
 .nav-bg {
   position: absolute;
-  inset: 4px 12px calc(4px + env(safe-area-inset-bottom, 0px));
+  top: 4px; left: 12px; right: 12px; bottom: calc(4px + env(safe-area-inset-bottom, 0px));
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);

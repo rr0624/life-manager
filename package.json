@@ -1,0 +1,31 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "sync": "npx cap sync",
+    "open:android": "npx cap open android",
+    "build:www": "node scripts/copy-www.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rr0624/life-manager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rr0624/life-manager/issues"
+  },
+  "homepage": "https://github.com/rr0624/life-manager#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2"
+  }
+}

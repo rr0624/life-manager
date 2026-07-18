@@ -4,6 +4,9 @@ const App = {
   _drawerOpen: false,
 
   async init() {
+    // 0. 锁定视口 — 防止键盘弹出时页面滚动
+    this._lockViewport();
+
     // 1. 初始化主题
     this._initTheme();
 
@@ -58,6 +61,77 @@ const App = {
       document.documentElement.setAttribute('data-theme', 'dark');
     }
     // 'auto' → 不设置属性，让 CSS media query 自动决定
+  },
+
+  // ===== 键盘避让 — 动态同步 #app 高度（兼容低版本 WebView） =====
+  _lockViewport() {
+    const appEl = document.getElementById('app');
+    this._fullHeight = window.innerHeight;
+    this._heightSyncTimer = null;
+
+    // 初始锁死高度
+    const setAppHeight = (h) => { if (appEl) appEl.style.height = h + 'px'; };
+    setAppHeight(window.innerHeight);
+    // DOM 渲染完成后二次确认（_lockViewport 在 _renderShell 之前调用）
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setAppHeight(window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      });
+    });
+
+    const syncHeight = () => {
+      if (!appEl) return;
+      // 防抖：避免键盘动画期间频繁重排
+      if (this._heightSyncTimer) return;
+      this._heightSyncTimer = setTimeout(() => {
+        this._heightSyncTimer = null;
+      }, 80);
+
+      // visualViewport 优先，window.innerHeight 兜底（兼容低版本 WebView）
+      const vp = window.visualViewport;
+      const vpHeight = vp ? vp.height : window.innerHeight;
+      const keyboardH = Math.max(0, this._fullHeight - vpHeight);
+      const chatInput = document.getElementById('chat-input');
+      const isChatFocused = chatInput && document.activeElement === chatInput;
+      // 动态查询：_lockViewport 在 _renderShell 之前调用，此时 nav 尚不存在
+      const bottomNav = document.querySelector('.bottom-nav');
+
+      // 1. 同步 #app 高度
+      appEl.style.height = vpHeight + 'px';
+
+      // 2. 键盘弹出 + 正在输入 → 隐藏底部导航
+      if (keyboardH > 80 && isChatFocused) {
+        if (bottomNav) bottomNav.classList.add('nav-hidden');
+      } else if (!isChatFocused) {
+        if (bottomNav) bottomNav.classList.remove('nav-hidden');
+      }
+    };
+
+    // 主通道：visualViewport（现代浏览器）
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncHeight);
+      window.visualViewport.addEventListener('scroll', syncHeight);
+    }
+
+    // 兜底通道：window.resize（低版本 WebView 键盘弹出时 innerHeight 变化触发 resize）
+    let lastInnerHeight = window.innerHeight;
+    window.addEventListener('resize', () => {
+      if (window.innerHeight !== lastInnerHeight) {
+        lastInnerHeight = window.innerHeight;
+        syncHeight();
+      }
+    });
+
+    // 转屏时重置基准高度
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        this._fullHeight = window.innerHeight;
+        lastInnerHeight = window.innerHeight;
+        setAppHeight(window.innerHeight);
+        const bottomNav = document.querySelector('.bottom-nav');
+        if (bottomNav) bottomNav.classList.remove('nav-hidden');
+      }, 400);
+    });
   },
 
   _setTheme(mode) {
@@ -120,6 +194,10 @@ const App = {
     document.getElementById('btn-theme-toggle').addEventListener('click', () => {
       this._cycleTheme();
     });
+
+    // 强制确保底部导航可见（清除可能的残留 nav-hidden）
+    const nav = document.getElementById('bottom-nav');
+    if (nav) nav.classList.remove('nav-hidden');
   },
 
   // ===== 主题循环切换 =====

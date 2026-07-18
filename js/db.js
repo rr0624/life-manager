@@ -99,6 +99,14 @@ const DB = {
     return this.getByFilter('diaryCards', d => d.date === date);
   },
 
+  // ===== 聊天历史 =====
+  saveChatMessages(messages) {
+    this._write('chatMessages', messages);
+  },
+  loadChatMessages() {
+    return this._read('chatMessages') || [];
+  },
+
   // ===== 设置 =====
   getSettings() {
     return this._read('settings') || { aiApiUrl: '', aiApiKey: '' };
@@ -111,7 +119,7 @@ const DB = {
   // ===== 数据导出导入 =====
   exportAll() {
     const data = {};
-    for (const k of ['goals','records','schedules','reviews','diaryCards','excerpts','settings']) {
+    for (const k of ['goals','records','schedules','reviews','diaryCards','excerpts','chatMessages','settings']) {
       data[k] = this._read(k);
     }
     data._version = 2;
@@ -121,7 +129,7 @@ const DB = {
 
   async importAll(data) {
     if (!data || data._version !== 2) throw new Error('数据格式不兼容');
-    for (const k of ['goals','records','schedules','reviews','diaryCards','excerpts','settings']) {
+    for (const k of ['goals','records','schedules','reviews','diaryCards','excerpts','chatMessages','settings']) {
       if (data[k] !== undefined) this._write(k, data[k]);
     }
     return true;
