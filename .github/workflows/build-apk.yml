@@ -36,11 +36,14 @@ jobs:
           cp index.html manifest.json sw.js www/
           cp -r css js icons www/
 
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync web assets
+        run: npx cap sync
+
       - name: Build APK
-        run: |
-          npx cap sync android
-          cd android
-          ./gradlew assembleDebug
+        run: cd android && ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
